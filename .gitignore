@@ -1,0 +1,23 @@
+# Credenciais e segredos
+*.pem
+*.key
+*.env
+.env
+.env.*
+credentials
+aws_credentials.json
+
+# Arquivos temporários
+*.tmp
+*.bak
+*.swp
+*~
+
+# Diretórios do sistema
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.iml
