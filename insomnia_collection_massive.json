@@ -1,0 +1,4445 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-02-23T00:00:00.000Z",
+  "__export_source": "manus.finops.generator.v2",
+  "resources": [
+    {
+      "_id": "wrk_finops_aws",
+      "_type": "workspace",
+      "name": "AWS FinOps APIs - Guia Definitivo",
+      "description": "Cole\u00e7\u00e3o massiva com 200+ requisi\u00e7\u00f5es para todas as APIs AWS relevantes para FinOps",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base_finops",
+      "_type": "environment",
+      "name": "Base Environment",
+      "parentId": "wrk_finops_aws",
+      "data": {}
+    },
+    {
+      "_id": "env_finops_aws_creds",
+      "_type": "environment",
+      "name": "AWS Credentials",
+      "parentId": "env_base_finops",
+      "data": {
+        "aws_access_key": "YOUR_ACCESS_KEY_HERE",
+        "aws_secret_key": "YOUR_SECRET_KEY_HERE",
+        "aws_session_token": "",
+        "aws_region": "us-east-1",
+        "account_id": "123456789012"
+      }
+    },
+    {
+      "_id": "fld_57e584d5fcb643a59d5f586d",
+      "_type": "request_group",
+      "name": "01 - COST MANAGEMENT",
+      "parentId": "wrk_finops_aws"
+    },
+    {
+      "_id": "fld_3553cf805c9448bfb576334f",
+      "_type": "request_group",
+      "name": "Cost Explorer API",
+      "parentId": "fld_57e584d5fcb643a59d5f586d"
+    },
+    {
+      "_id": "req_937df8d94f42405381cdbc84",
+      "_type": "request",
+      "name": "GetCostAndUsage",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Retorna custos e uso agregados por per\u00edodo, com suporte a filtros e agrupamentos.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetCostAndUsage"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  },\n  \"Granularity\": \"MONTHLY\",\n  \"Metrics\": [\n    \"UnblendedCost\",\n    \"UsageQuantity\"\n  ],\n  \"GroupBy\": [\n    {\n      \"Type\": \"DIMENSION\",\n      \"Key\": \"SERVICE\"\n    }\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_f2ef65738a574cecaec37242",
+      "_type": "request",
+      "name": "GetCostAndUsage (por Conta)",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Custos agrupados por conta vinculada.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetCostAndUsage"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  },\n  \"Granularity\": \"MONTHLY\",\n  \"Metrics\": [\n    \"UnblendedCost\",\n    \"BlendedCost\",\n    \"AmortizedCost\"\n  ],\n  \"GroupBy\": [\n    {\n      \"Type\": \"DIMENSION\",\n      \"Key\": \"LINKED_ACCOUNT\"\n    }\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_661fd1cc1ac14a69b9dc8304",
+      "_type": "request",
+      "name": "GetCostAndUsage (por Tag)",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Custos agrupados por tag de aloca\u00e7\u00e3o de custos.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetCostAndUsage"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  },\n  \"Granularity\": \"MONTHLY\",\n  \"Metrics\": [\n    \"UnblendedCost\"\n  ],\n  \"GroupBy\": [\n    {\n      \"Type\": \"TAG\",\n      \"Key\": \"Project\"\n    }\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_cbd807a14ec442fca94ec0a6",
+      "_type": "request",
+      "name": "GetCostAndUsage (Di\u00e1rio por Servi\u00e7o)",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Custos di\u00e1rios por servi\u00e7o.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetCostAndUsage"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-02-01\",\n    \"End\": \"2026-02-23\"\n  },\n  \"Granularity\": \"DAILY\",\n  \"Metrics\": [\n    \"UnblendedCost\"\n  ],\n  \"GroupBy\": [\n    {\n      \"Type\": \"DIMENSION\",\n      \"Key\": \"SERVICE\"\n    }\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_5a92288eb9b24f34b5f259e4",
+      "_type": "request",
+      "name": "GetCostAndUsageWithResources",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Custos por recurso individual (requer filtro obrigat\u00f3rio).",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetCostAndUsageWithResources"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-02-01\",\n    \"End\": \"2026-02-02\"\n  },\n  \"Granularity\": \"DAILY\",\n  \"Metrics\": [\n    \"UnblendedCost\"\n  ],\n  \"Filter\": {\n    \"Dimensions\": {\n      \"Key\": \"SERVICE\",\n      \"Values\": [\n        \"Amazon Elastic Compute Cloud - Compute\"\n      ]\n    }\n  },\n  \"GroupBy\": [\n    {\n      \"Type\": \"DIMENSION\",\n      \"Key\": \"RESOURCE_ID\"\n    }\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_df44d8301e4243809db08593",
+      "_type": "request",
+      "name": "GetCostForecast",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Previs\u00e3o de custos para um per\u00edodo futuro.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetCostForecast"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-03-01\",\n    \"End\": \"2026-04-01\"\n  },\n  \"Metric\": \"UNBLENDED_COST\",\n  \"Granularity\": \"MONTHLY\",\n  \"PredictionIntervalLevel\": 95\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_920170659c264f3bb2781575",
+      "_type": "request",
+      "name": "GetUsageForecast",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Previs\u00e3o de uso para um per\u00edodo futuro.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetUsageForecast"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-03-01\",\n    \"End\": \"2026-04-01\"\n  },\n  \"Metric\": \"USAGE_QUANTITY\",\n  \"Granularity\": \"MONTHLY\",\n  \"Filter\": {\n    \"Dimensions\": {\n      \"Key\": \"SERVICE\",\n      \"Values\": [\n        \"Amazon Elastic Compute Cloud - Compute\"\n      ]\n    }\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_ef39566e24ee4d17b6761bc9",
+      "_type": "request",
+      "name": "GetDimensionValues",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Lista os valores dispon\u00edveis para uma dimens\u00e3o.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetDimensionValues"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  },\n  \"Dimension\": \"SERVICE\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_58db018c78be493792dab61f",
+      "_type": "request",
+      "name": "GetTags",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Lista todas as tags de aloca\u00e7\u00e3o de custos.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetTags"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_30d3315281a64db284f420d6",
+      "_type": "request",
+      "name": "GetReservationCoverage",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Cobertura de Reserved Instances por servi\u00e7o.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetReservationCoverage"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  },\n  \"Granularity\": \"MONTHLY\",\n  \"GroupBy\": [\n    {\n      \"Type\": \"DIMENSION\",\n      \"Key\": \"SERVICE\"\n    }\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_0f299414831648b392881585",
+      "_type": "request",
+      "name": "GetReservationUtilization",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Utiliza\u00e7\u00e3o de Reserved Instances.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetReservationUtilization"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  },\n  \"Granularity\": \"MONTHLY\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_07f2cb45f66b48798683caa0",
+      "_type": "request",
+      "name": "GetReservationPurchaseRecommendation",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Recomenda\u00e7\u00f5es de compra de RIs.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetReservationPurchaseRecommendation"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Service\": \"Amazon Elastic Compute Cloud - Compute\",\n  \"LookbackPeriodInDays\": \"SIXTY_DAYS\",\n  \"TermInYears\": \"ONE_YEAR\",\n  \"PaymentOption\": \"NO_UPFRONT\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_c02835467823450ba25d4a26",
+      "_type": "request",
+      "name": "GetSavingsPlansCoverage",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Cobertura de Savings Plans.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetSavingsPlansCoverage"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  },\n  \"Granularity\": \"MONTHLY\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_545dfbdb0da24a449d6a6504",
+      "_type": "request",
+      "name": "GetSavingsPlansUtilizationDetails",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Detalhes de utiliza\u00e7\u00e3o de Savings Plans.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetSavingsPlansUtilizationDetails"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_43e3af0d63934fd8968594ed",
+      "_type": "request",
+      "name": "GetSavingsPlansPurchaseRecommendation",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Recomenda\u00e7\u00f5es de compra de Savings Plans.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetSavingsPlansPurchaseRecommendation"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"SavingsPlansType\": \"COMPUTE_SP\",\n  \"TermInYears\": \"ONE_YEAR\",\n  \"PaymentOption\": \"NO_UPFRONT\",\n  \"LookbackPeriodInDays\": \"SIXTY_DAYS\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_b96e66bb149b43a797e99381",
+      "_type": "request",
+      "name": "GetRightsizingRecommendation",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Recomenda\u00e7\u00f5es de right-sizing para EC2.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetRightsizingRecommendation"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Service\": \"AmazonEC2\",\n  \"Configuration\": {\n    \"RecommendationTarget\": \"CROSS_INSTANCE_FAMILY\",\n    \"BenefitsConsidered\": true\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_1609d9756ad74e38bd21fc0c",
+      "_type": "request",
+      "name": "GetCostCategories",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Lista as categorias de custo.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetCostCategories"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TimePeriod\": {\n    \"Start\": \"2026-01-01\",\n    \"End\": \"2026-02-01\"\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_1e251cfa5ac44e99b903a3c1",
+      "_type": "request",
+      "name": "ListCostCategoryDefinitions",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Lista todas as defini\u00e7\u00f5es de categorias de custo.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.ListCostCategoryDefinitions"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_5b6808758f7c45bca948fbae",
+      "_type": "request",
+      "name": "ListCostAllocationTags",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Lista as tags de aloca\u00e7\u00e3o de custos.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.ListCostAllocationTags"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Status\": \"Active\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_59b53588ea95491c8a1ab6fd",
+      "_type": "request",
+      "name": "GetApproximateUsageRecords",
+      "parentId": "fld_3553cf805c9448bfb576334f",
+      "description": "Retorna registros aproximados de uso.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetApproximateUsageRecords"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Granularity\": \"MONTHLY\",\n  \"ApproximationDimension\": \"SERVICE\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_be0b55210f68419f8debc48f",
+      "_type": "request_group",
+      "name": "Cost Anomaly Detection",
+      "parentId": "fld_57e584d5fcb643a59d5f586d"
+    },
+    {
+      "_id": "req_415a882bf8e44928b3a0b932",
+      "_type": "request",
+      "name": "CreateAnomalyMonitor",
+      "parentId": "fld_be0b55210f68419f8debc48f",
+      "description": "Cria um monitor de anomalias por servi\u00e7o.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.CreateAnomalyMonitor"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AnomalyMonitor\": {\n    \"MonitorName\": \"MonitorPorServico\",\n    \"MonitorType\": \"DIMENSIONAL\",\n    \"MonitorDimension\": \"SERVICE\"\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_6a5ab22534bd41d2aa67f3e8",
+      "_type": "request",
+      "name": "GetAnomalyMonitors",
+      "parentId": "fld_be0b55210f68419f8debc48f",
+      "description": "Lista todos os monitores de anomalias.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetAnomalyMonitors"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_88e32b5806e347638e9f9ce2",
+      "_type": "request",
+      "name": "GetAnomalies",
+      "parentId": "fld_be0b55210f68419f8debc48f",
+      "description": "Lista anomalias detectadas no per\u00edodo.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetAnomalies"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"DateInterval\": {\n    \"StartDate\": \"2026-01-01\",\n    \"EndDate\": \"2026-02-23\"\n  },\n  \"MaxResults\": 100\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_3a1d4f0c8330433d9a3554bf",
+      "_type": "request",
+      "name": "CreateAnomalySubscription",
+      "parentId": "fld_be0b55210f68419f8debc48f",
+      "description": "Cria assinatura para receber alertas de anomalias.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.CreateAnomalySubscription"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AnomalySubscription\": {\n    \"SubscriptionName\": \"AlertasFinOps\",\n    \"Frequency\": \"DAILY\",\n    \"MonitorArnList\": [\n      \"arn:aws:ce::{{ _.account_id }}:anomalymonitor/MONITOR_ID\"\n    ],\n    \"Subscribers\": [\n      {\n        \"Address\": \"finops@example.com\",\n        \"Type\": \"EMAIL\"\n      }\n    ]\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_ef9114d851144663a17e3692",
+      "_type": "request",
+      "name": "GetAnomalySubscriptions",
+      "parentId": "fld_be0b55210f68419f8debc48f",
+      "description": "Lista todas as assinaturas de anomalias.",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.GetAnomalySubscriptions"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_a529982a970640af8a44dd10",
+      "_type": "request",
+      "name": "ProvideAnomalyFeedback",
+      "parentId": "fld_be0b55210f68419f8debc48f",
+      "description": "Envia feedback sobre uma anomalia (YES/NO/PLANNED_ACTIVITY).",
+      "method": "POST",
+      "url": "https://ce.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSInsightsIndexService.ProvideAnomalyFeedback"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AnomalyId\": \"ANOMALY_ID_HERE\",\n  \"Feedback\": \"YES\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_cbe37b4096154a2181f0f8c7",
+      "_type": "request_group",
+      "name": "Cost Optimization Hub",
+      "parentId": "fld_57e584d5fcb643a59d5f586d"
+    },
+    {
+      "_id": "req_a2f3c8b343d142768b54db54",
+      "_type": "request",
+      "name": "ListRecommendations",
+      "parentId": "fld_cbe37b4096154a2181f0f8c7",
+      "description": "Lista recomenda\u00e7\u00f5es de otimiza\u00e7\u00e3o de custos.",
+      "method": "POST",
+      "url": "https://cost-optimization-hub.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "CostOptimizationHubService.ListRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"maxResults\": 50,\n  \"orderBy\": {\n    \"dimension\": \"SavingsAmount\",\n    \"order\": \"Desc\"\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_54603e1637d64d44a85f59d6",
+      "_type": "request",
+      "name": "ListRecommendationSummaries",
+      "parentId": "fld_cbe37b4096154a2181f0f8c7",
+      "description": "Resumos de recomenda\u00e7\u00f5es por tipo de recurso.",
+      "method": "POST",
+      "url": "https://cost-optimization-hub.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "CostOptimizationHubService.ListRecommendationSummaries"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"groupBy\": \"ResourceType\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_068298099a3b4443b01279b5",
+      "_type": "request",
+      "name": "GetRecommendation",
+      "parentId": "fld_cbe37b4096154a2181f0f8c7",
+      "description": "Detalhes de uma recomenda\u00e7\u00e3o espec\u00edfica.",
+      "method": "POST",
+      "url": "https://cost-optimization-hub.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "CostOptimizationHubService.GetRecommendation"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"recommendationId\": \"RECOMMENDATION_ID_HERE\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_4a5d1eabde554f828d74e821",
+      "_type": "request",
+      "name": "GetPreferences",
+      "parentId": "fld_cbe37b4096154a2181f0f8c7",
+      "description": "Retorna prefer\u00eancias do Cost Optimization Hub.",
+      "method": "POST",
+      "url": "https://cost-optimization-hub.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "CostOptimizationHubService.GetPreferences"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_d7520c1b74304a66bea22577",
+      "_type": "request",
+      "name": "ListEnrollmentStatuses",
+      "parentId": "fld_cbe37b4096154a2181f0f8c7",
+      "description": "Lista status de inscri\u00e7\u00e3o das contas.",
+      "method": "POST",
+      "url": "https://cost-optimization-hub.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "CostOptimizationHubService.ListEnrollmentStatuses"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_4c8e1c9cdc8c4d85af0e50ce",
+      "_type": "request_group",
+      "name": "02 - BILLING",
+      "parentId": "wrk_finops_aws"
+    },
+    {
+      "_id": "fld_f386f727850a4b34a03128ed",
+      "_type": "request_group",
+      "name": "AWS Budgets API",
+      "parentId": "fld_4c8e1c9cdc8c4d85af0e50ce"
+    },
+    {
+      "_id": "req_e50196c2a24f4f5d9ea7eec1",
+      "_type": "request",
+      "name": "DescribeBudgets",
+      "parentId": "fld_f386f727850a4b34a03128ed",
+      "description": "Lista todos os or\u00e7amentos da conta.",
+      "method": "POST",
+      "url": "https://budgets.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBudgetServiceGateway.DescribeBudgets"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AccountId\": \"{{ _.account_id }}\",\n  \"MaxResults\": 100\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_46c92436ca7a44a6ae8cf3da",
+      "_type": "request",
+      "name": "DescribeBudget",
+      "parentId": "fld_f386f727850a4b34a03128ed",
+      "description": "Detalhes de um or\u00e7amento espec\u00edfico.",
+      "method": "POST",
+      "url": "https://budgets.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBudgetServiceGateway.DescribeBudget"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AccountId\": \"{{ _.account_id }}\",\n  \"BudgetName\": \"BUDGET_NAME_HERE\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_6d9d4115ef154a34922a5fc2",
+      "_type": "request",
+      "name": "CreateBudget",
+      "parentId": "fld_f386f727850a4b34a03128ed",
+      "description": "Cria um or\u00e7amento com alerta de previs\u00e3o.",
+      "method": "POST",
+      "url": "https://budgets.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBudgetServiceGateway.CreateBudget"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AccountId\": \"{{ _.account_id }}\",\n  \"Budget\": {\n    \"BudgetName\": \"Monthly-Total-Budget\",\n    \"BudgetType\": \"COST\",\n    \"TimeUnit\": \"MONTHLY\",\n    \"BudgetLimit\": {\n      \"Amount\": \"5000.0\",\n      \"Unit\": \"USD\"\n    },\n    \"CostTypes\": {\n      \"IncludeTax\": true,\n      \"IncludeSubscription\": true,\n      \"UseBlended\": false\n    }\n  },\n  \"NotificationsWithSubscribers\": [\n    {\n      \"Notification\": {\n        \"NotificationType\": \"FORECASTED\",\n        \"ComparisonOperator\": \"GREATER_THAN\",\n        \"Threshold\": 100,\n        \"ThresholdType\": \"PERCENTAGE\"\n      },\n      \"Subscribers\": [\n        {\n          \"SubscriptionType\": \"EMAIL\",\n          \"Address\": \"finops@example.com\"\n        }\n      ]\n    }\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_47694dcd61354b64b8ea0859",
+      "_type": "request",
+      "name": "DescribeBudgetPerformanceHistory",
+      "parentId": "fld_f386f727850a4b34a03128ed",
+      "description": "Hist\u00f3rico de performance de um or\u00e7amento.",
+      "method": "POST",
+      "url": "https://budgets.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBudgetServiceGateway.DescribeBudgetPerformanceHistory"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AccountId\": \"{{ _.account_id }}\",\n  \"BudgetName\": \"BUDGET_NAME_HERE\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_28c2cb4f72634fc7bd1b9b42",
+      "_type": "request",
+      "name": "DescribeBudgetActionsForAccount",
+      "parentId": "fld_f386f727850a4b34a03128ed",
+      "description": "Lista todas as a\u00e7\u00f5es de or\u00e7amento da conta.",
+      "method": "POST",
+      "url": "https://budgets.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBudgetServiceGateway.DescribeBudgetActionsForAccount"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AccountId\": \"{{ _.account_id }}\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_87d3d807957044b196d51fd5",
+      "_type": "request",
+      "name": "DescribeNotificationsForBudget",
+      "parentId": "fld_f386f727850a4b34a03128ed",
+      "description": "Lista notifica\u00e7\u00f5es de um or\u00e7amento.",
+      "method": "POST",
+      "url": "https://budgets.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBudgetServiceGateway.DescribeNotificationsForBudget"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"AccountId\": \"{{ _.account_id }}\",\n  \"BudgetName\": \"BUDGET_NAME_HERE\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_56bd6f032949420c99454635",
+      "_type": "request_group",
+      "name": "Cost and Usage Reports (CUR)",
+      "parentId": "fld_4c8e1c9cdc8c4d85af0e50ce"
+    },
+    {
+      "_id": "req_2d01216811f2443db1413a02",
+      "_type": "request",
+      "name": "DescribeReportDefinitions",
+      "parentId": "fld_56bd6f032949420c99454635",
+      "description": "Lista todas as defini\u00e7\u00f5es de relat\u00f3rios CUR.",
+      "method": "POST",
+      "url": "https://cur.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSOrigamiServiceGatewayService.DescribeReportDefinitions"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_41f7912c87d44a7a9545fffe",
+      "_type": "request",
+      "name": "PutReportDefinition",
+      "parentId": "fld_56bd6f032949420c99454635",
+      "description": "Cria uma defini\u00e7\u00e3o de relat\u00f3rio CUR para Athena.",
+      "method": "POST",
+      "url": "https://cur.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSOrigamiServiceGatewayService.PutReportDefinition"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ReportDefinition\": {\n    \"ReportName\": \"CUR-Athena-Hourly\",\n    \"TimeUnit\": \"HOURLY\",\n    \"Format\": \"Parquet\",\n    \"Compression\": \"Parquet\",\n    \"S3Bucket\": \"my-cur-bucket\",\n    \"S3Prefix\": \"cur-reports/\",\n    \"S3Region\": \"us-east-1\",\n    \"AdditionalSchemaElements\": [\n      \"RESOURCES\"\n    ],\n    \"AdditionalArtifacts\": [\n      \"ATHENA\"\n    ],\n    \"RefreshClosedReports\": true,\n    \"ReportVersioning\": \"OVERWRITE_REPORT\"\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_8a382bfc194843a0a0e9c107",
+      "_type": "request_group",
+      "name": "BCM Data Exports",
+      "parentId": "fld_4c8e1c9cdc8c4d85af0e50ce"
+    },
+    {
+      "_id": "req_ed63415fc0d546b1a8577ddb",
+      "_type": "request",
+      "name": "ListExports",
+      "parentId": "fld_8a382bfc194843a0a0e9c107",
+      "description": "Lista todas as exporta\u00e7\u00f5es configuradas.",
+      "method": "POST",
+      "url": "https://bcm-data-exports.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBillingAndCostManagementDataExports.ListExports"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_1a67b9c293984b30b40a413d",
+      "_type": "request",
+      "name": "ListTables",
+      "parentId": "fld_8a382bfc194843a0a0e9c107",
+      "description": "Lista tabelas de dados dispon\u00edveis.",
+      "method": "POST",
+      "url": "https://bcm-data-exports.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBillingAndCostManagementDataExports.ListTables"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_1df6360c4b2941e496c9b90d",
+      "_type": "request",
+      "name": "CreateExport",
+      "parentId": "fld_8a382bfc194843a0a0e9c107",
+      "description": "Cria uma exporta\u00e7\u00e3o de dados CUR 2.0.",
+      "method": "POST",
+      "url": "https://bcm-data-exports.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBillingAndCostManagementDataExports.CreateExport"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Export\": {\n    \"Name\": \"CUR-2.0-Export\",\n    \"DataQuery\": {\n      \"QueryStatement\": \"SELECT * FROM COST_AND_USAGE_REPORT\",\n      \"TableConfigurations\": {\n        \"COST_AND_USAGE_REPORT\": {\n          \"TIME_GRANULARITY\": \"HOURLY\",\n          \"INCLUDE_RESOURCES\": \"TRUE\"\n        }\n      }\n    },\n    \"DestinationConfigurations\": {\n      \"S3Destination\": {\n        \"S3Bucket\": \"my-bcm-exports\",\n        \"S3Prefix\": \"exports/\",\n        \"S3Region\": \"us-east-1\",\n        \"S3OutputConfigurations\": {\n          \"OutputType\": \"CUSTOM\",\n          \"Format\": \"PARQUET\",\n          \"Compression\": \"PARQUET\",\n          \"Overwrite\": \"OVERWRITE_REPORT\"\n        }\n      }\n    },\n    \"RefreshCadence\": {\n      \"Frequency\": \"SYNCHRONOUS\"\n    }\n  }\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_bbbc1fcb3745445ca71026de",
+      "_type": "request_group",
+      "name": "Billing Conductor",
+      "parentId": "fld_4c8e1c9cdc8c4d85af0e50ce"
+    },
+    {
+      "_id": "req_434ab7f7b57d48a0b57ed2f8",
+      "_type": "request",
+      "name": "ListBillingGroups",
+      "parentId": "fld_bbbc1fcb3745445ca71026de",
+      "description": "Lista grupos de billing.",
+      "method": "POST",
+      "url": "https://billingconductor.us-east-1.amazonaws.com/list-billing-groups",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"MaxResults\": 100\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_0b011830af0a43429eaf2001",
+      "_type": "request",
+      "name": "ListBillingGroupCostReports",
+      "parentId": "fld_bbbc1fcb3745445ca71026de",
+      "description": "Relat\u00f3rios de custo por grupo.",
+      "method": "POST",
+      "url": "https://billingconductor.us-east-1.amazonaws.com/list-billing-group-cost-reports",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"BillingPeriod\": \"2026-02\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_9296842d6dba4920bfd0f4aa",
+      "_type": "request",
+      "name": "ListPricingPlans",
+      "parentId": "fld_bbbc1fcb3745445ca71026de",
+      "description": "Lista planos de precifica\u00e7\u00e3o.",
+      "method": "POST",
+      "url": "https://billingconductor.us-east-1.amazonaws.com/list-pricing-plans",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_4067e2f8a99d4bc8b1508b0d",
+      "_type": "request",
+      "name": "ListPricingRules",
+      "parentId": "fld_bbbc1fcb3745445ca71026de",
+      "description": "Lista regras de precifica\u00e7\u00e3o.",
+      "method": "POST",
+      "url": "https://billingconductor.us-east-1.amazonaws.com/list-pricing-rules",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_da3e1160638444a28404d9a5",
+      "_type": "request",
+      "name": "ListAccountAssociations",
+      "parentId": "fld_bbbc1fcb3745445ca71026de",
+      "description": "Lista associa\u00e7\u00f5es de contas.",
+      "method": "POST",
+      "url": "https://billingconductor.us-east-1.amazonaws.com/list-account-associations",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_5dd3dfe84bbf4cfd9c59bad7",
+      "_type": "request",
+      "name": "ListCustomLineItems",
+      "parentId": "fld_bbbc1fcb3745445ca71026de",
+      "description": "Lista itens de linha personalizados.",
+      "method": "POST",
+      "url": "https://billingconductor.us-east-1.amazonaws.com/list-custom-line-items",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_fc13df2ee6d2402da0341b04",
+      "_type": "request_group",
+      "name": "AWS Billing API",
+      "parentId": "fld_4c8e1c9cdc8c4d85af0e50ce"
+    },
+    {
+      "_id": "req_85c46e50f51a41aba70043b1",
+      "_type": "request",
+      "name": "ListBillingViews",
+      "parentId": "fld_fc13df2ee6d2402da0341b04",
+      "description": "Lista visualiza\u00e7\u00f5es de billing.",
+      "method": "POST",
+      "url": "https://billing.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSBilling.ListBillingViews"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_73d4a01e84474e488f73b696",
+      "_type": "request_group",
+      "name": "03 - OPTIMIZATION",
+      "parentId": "wrk_finops_aws"
+    },
+    {
+      "_id": "fld_b6fe9a4a2c324629907e7878",
+      "_type": "request_group",
+      "name": "Compute Optimizer",
+      "parentId": "fld_73d4a01e84474e488f73b696"
+    },
+    {
+      "_id": "req_25cc06dc564b4eb898a25c1d",
+      "_type": "request",
+      "name": "GetEnrollmentStatus",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Verifica se a conta est\u00e1 inscrita.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetEnrollmentStatus"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_7d3f83dd4f9c42629b047fd5",
+      "_type": "request",
+      "name": "GetRecommendationSummaries",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Resumo de recomenda\u00e7\u00f5es por tipo de recurso.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetRecommendationSummaries"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_23d0fd930be24f4aa8afad95",
+      "_type": "request",
+      "name": "GetEC2InstanceRecommendations",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Recomenda\u00e7\u00f5es de right-sizing para EC2.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetEC2InstanceRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"maxResults\": 100\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_acf9a4a05bf34432951afea1",
+      "_type": "request",
+      "name": "GetEC2InstanceRecommendations (Overprovisioned)",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Apenas inst\u00e2ncias over-provisioned.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetEC2InstanceRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"filters\": [\n    {\n      \"name\": \"finding\",\n      \"values\": [\n        \"Overprovisioned\"\n      ]\n    }\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_036f109a65484f5b8edec5e7",
+      "_type": "request",
+      "name": "GetAutoScalingGroupRecommendations",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Recomenda\u00e7\u00f5es para Auto Scaling Groups.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetAutoScalingGroupRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_64fff6eb37194fda9fc74efc",
+      "_type": "request",
+      "name": "GetEBSVolumeRecommendations",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Recomenda\u00e7\u00f5es para volumes EBS.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetEBSVolumeRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_58c1506d107146a9819b18dd",
+      "_type": "request",
+      "name": "GetLambdaFunctionRecommendations",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Recomenda\u00e7\u00f5es de mem\u00f3ria para Lambda.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetLambdaFunctionRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_ebef0f16744f45ec84dd9a5d",
+      "_type": "request",
+      "name": "GetECSServiceRecommendations",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Recomenda\u00e7\u00f5es para servi\u00e7os ECS Fargate.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetECSServiceRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_b41fb56e5ac140a795e2ac11",
+      "_type": "request",
+      "name": "GetRDSDatabaseRecommendations",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Recomenda\u00e7\u00f5es para inst\u00e2ncias RDS.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetRDSDatabaseRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_3a571f0cfa984bbbb91ff0b8",
+      "_type": "request",
+      "name": "GetLicenseRecommendations",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Recomenda\u00e7\u00f5es de otimiza\u00e7\u00e3o de licen\u00e7as.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.GetLicenseRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_d9582bf9136147b8b1baee9f",
+      "_type": "request",
+      "name": "ExportEC2InstanceRecommendations",
+      "parentId": "fld_b6fe9a4a2c324629907e7878",
+      "description": "Exporta recomenda\u00e7\u00f5es EC2 para S3.",
+      "method": "POST",
+      "url": "https://compute-optimizer.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ComputeOptimizerService.ExportEC2InstanceRecommendations"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"s3DestinationConfig\": {\n    \"bucket\": \"my-exports-bucket\",\n    \"keyPrefix\": \"ec2-recs/\"\n  },\n  \"includeMemberAccounts\": true\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_65aa3a7c942d4959b17acea2",
+      "_type": "request_group",
+      "name": "Trusted Advisor (Support API)",
+      "parentId": "fld_73d4a01e84474e488f73b696"
+    },
+    {
+      "_id": "req_cb684a5171b54512a8140394",
+      "_type": "request",
+      "name": "DescribeTrustedAdvisorChecks",
+      "parentId": "fld_65aa3a7c942d4959b17acea2",
+      "description": "Lista todas as verifica\u00e7\u00f5es do Trusted Advisor.",
+      "method": "POST",
+      "url": "https://support.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSSupport_20130415.DescribeTrustedAdvisorChecks"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"language\": \"en\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_5f9c966d5818405b88a1698d",
+      "_type": "request",
+      "name": "DescribeTrustedAdvisorCheckResult (EC2 Low Util)",
+      "parentId": "fld_65aa3a7c942d4959b17acea2",
+      "description": "Resultado: EC2 com baixa utiliza\u00e7\u00e3o.",
+      "method": "POST",
+      "url": "https://support.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSSupport_20130415.DescribeTrustedAdvisorCheckResult"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"checkId\": \"Qch7DwouX1\",\n  \"language\": \"en\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_e95f0c46c99144678ee33c22",
+      "_type": "request",
+      "name": "DescribeTrustedAdvisorCheckResult (EBS Underutil)",
+      "parentId": "fld_65aa3a7c942d4959b17acea2",
+      "description": "Resultado: EBS subutilizados.",
+      "method": "POST",
+      "url": "https://support.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSSupport_20130415.DescribeTrustedAdvisorCheckResult"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"checkId\": \"DAvU99Dc4C\",\n  \"language\": \"en\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_db2bc9bca9c444a196c1dca3",
+      "_type": "request",
+      "name": "DescribeTrustedAdvisorCheckResult (RDS Idle)",
+      "parentId": "fld_65aa3a7c942d4959b17acea2",
+      "description": "Resultado: RDS ociosos.",
+      "method": "POST",
+      "url": "https://support.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSSupport_20130415.DescribeTrustedAdvisorCheckResult"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"checkId\": \"Z4AUBRNSmz\",\n  \"language\": \"en\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_219e55c23d4044f28f910346",
+      "_type": "request",
+      "name": "DescribeTrustedAdvisorCheckResult (Idle LBs)",
+      "parentId": "fld_65aa3a7c942d4959b17acea2",
+      "description": "Resultado: Load Balancers ociosos.",
+      "method": "POST",
+      "url": "https://support.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSSupport_20130415.DescribeTrustedAdvisorCheckResult"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"checkId\": \"hjLMh88uM8\",\n  \"language\": \"en\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_c21f8bd0de0a46059a2211fb",
+      "_type": "request",
+      "name": "DescribeTrustedAdvisorCheckResult (Unassoc EIPs)",
+      "parentId": "fld_65aa3a7c942d4959b17acea2",
+      "description": "Resultado: IPs el\u00e1sticos n\u00e3o associados.",
+      "method": "POST",
+      "url": "https://support.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSSupport_20130415.DescribeTrustedAdvisorCheckResult"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"checkId\": \"51fC20e7I2\",\n  \"language\": \"en\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_23b474cad6b444d1a3256793",
+      "_type": "request",
+      "name": "DescribeTrustedAdvisorCheckSummaries",
+      "parentId": "fld_65aa3a7c942d4959b17acea2",
+      "description": "Resumos de verifica\u00e7\u00f5es de custo.",
+      "method": "POST",
+      "url": "https://support.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSSupport_20130415.DescribeTrustedAdvisorCheckSummaries"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"checkIds\": [\n    \"Qch7DwouX1\",\n    \"DAvU99Dc4C\",\n    \"Z4AUBRNSmz\",\n    \"hjLMh88uM8\",\n    \"51fC20e7I2\"\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_115be83dfc6f4145ada45dd1",
+      "_type": "request",
+      "name": "RefreshTrustedAdvisorCheck",
+      "parentId": "fld_65aa3a7c942d4959b17acea2",
+      "description": "Atualiza uma verifica\u00e7\u00e3o.",
+      "method": "POST",
+      "url": "https://support.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSSupport_20130415.RefreshTrustedAdvisorCheck"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"checkId\": \"Qch7DwouX1\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_e1993de43d284b879feac76d",
+      "_type": "request_group",
+      "name": "Trusted Advisor REST API (Nova)",
+      "parentId": "fld_73d4a01e84474e488f73b696"
+    },
+    {
+      "_id": "req_6cb075a0c5714dc48dcd80aa",
+      "_type": "request",
+      "name": "ListChecks (Cost Optimizing)",
+      "parentId": "fld_e1993de43d284b879feac76d",
+      "description": "Lista verifica\u00e7\u00f5es de otimiza\u00e7\u00e3o de custos.",
+      "method": "GET",
+      "url": "https://trustedadvisor.{{ _.aws_region }}.amazonaws.com/v2/checks?pillar=cost_optimizing&maxResults=100",
+      "headers": [],
+      "body": {},
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_40b7891d85a9423d815f70c1",
+      "_type": "request",
+      "name": "ListRecommendations (Warnings)",
+      "parentId": "fld_e1993de43d284b879feac76d",
+      "description": "Lista recomenda\u00e7\u00f5es com status warning.",
+      "method": "GET",
+      "url": "https://trustedadvisor.{{ _.aws_region }}.amazonaws.com/v2/recommendations?pillar=cost_optimizing&status=warning",
+      "headers": [],
+      "body": {},
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_a501eef325634682825b1353",
+      "_type": "request",
+      "name": "ListOrganizationRecommendations",
+      "parentId": "fld_e1993de43d284b879feac76d",
+      "description": "Lista recomenda\u00e7\u00f5es no n\u00edvel da organiza\u00e7\u00e3o.",
+      "method": "GET",
+      "url": "https://trustedadvisor.{{ _.aws_region }}.amazonaws.com/v2/organization-recommendations?pillar=cost_optimizing",
+      "headers": [],
+      "body": {},
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_d64a56e8e19e43e8b277b53b",
+      "_type": "request_group",
+      "name": "Pricing API",
+      "parentId": "fld_73d4a01e84474e488f73b696"
+    },
+    {
+      "_id": "req_950f112556d647b2be00cf7c",
+      "_type": "request",
+      "name": "DescribeServices",
+      "parentId": "fld_d64a56e8e19e43e8b277b53b",
+      "description": "Lista todos os servi\u00e7os com informa\u00e7\u00f5es de pre\u00e7o.",
+      "method": "POST",
+      "url": "https://api.pricing.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSPriceListService.DescribeServices"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_c66d2aaeb51f4dc3a3ee7f5b",
+      "_type": "request",
+      "name": "DescribeServices (EC2)",
+      "parentId": "fld_d64a56e8e19e43e8b277b53b",
+      "description": "Atributos do servi\u00e7o EC2.",
+      "method": "POST",
+      "url": "https://api.pricing.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSPriceListService.DescribeServices"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ServiceCode\": \"AmazonEC2\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_476f6d66ee814e3f9909b63d",
+      "_type": "request",
+      "name": "GetAttributeValues (Instance Types)",
+      "parentId": "fld_d64a56e8e19e43e8b277b53b",
+      "description": "Lista todos os tipos de inst\u00e2ncia EC2.",
+      "method": "POST",
+      "url": "https://api.pricing.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSPriceListService.GetAttributeValues"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ServiceCode\": \"AmazonEC2\",\n  \"AttributeName\": \"instanceType\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_b38c6abcd43e4157a4a063fb",
+      "_type": "request",
+      "name": "GetProducts (EC2 t3.micro)",
+      "parentId": "fld_d64a56e8e19e43e8b277b53b",
+      "description": "Pre\u00e7o de EC2 t3.micro em Virginia.",
+      "method": "POST",
+      "url": "https://api.pricing.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSPriceListService.GetProducts"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ServiceCode\": \"AmazonEC2\",\n  \"Filters\": [\n    {\n      \"Type\": \"TERM_MATCH\",\n      \"Field\": \"instanceType\",\n      \"Value\": \"t3.micro\"\n    },\n    {\n      \"Type\": \"TERM_MATCH\",\n      \"Field\": \"location\",\n      \"Value\": \"US East (N. Virginia)\"\n    },\n    {\n      \"Type\": \"TERM_MATCH\",\n      \"Field\": \"operatingSystem\",\n      \"Value\": \"Linux\"\n    },\n    {\n      \"Type\": \"TERM_MATCH\",\n      \"Field\": \"tenancy\",\n      \"Value\": \"Shared\"\n    },\n    {\n      \"Type\": \"TERM_MATCH\",\n      \"Field\": \"capacitystatus\",\n      \"Value\": \"Used\"\n    }\n  ],\n  \"MaxResults\": 10\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_8e26697c8b514883b2a394b0",
+      "_type": "request",
+      "name": "GetProducts (RDS)",
+      "parentId": "fld_d64a56e8e19e43e8b277b53b",
+      "description": "Pre\u00e7o de RDS MySQL db.t3.micro.",
+      "method": "POST",
+      "url": "https://api.pricing.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSPriceListService.GetProducts"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ServiceCode\": \"AmazonRDS\",\n  \"Filters\": [\n    {\n      \"Type\": \"TERM_MATCH\",\n      \"Field\": \"databaseEngine\",\n      \"Value\": \"MySQL\"\n    },\n    {\n      \"Type\": \"TERM_MATCH\",\n      \"Field\": \"instanceType\",\n      \"Value\": \"db.t3.micro\"\n    },\n    {\n      \"Type\": \"TERM_MATCH\",\n      \"Field\": \"location\",\n      \"Value\": \"US East (N. Virginia)\"\n    }\n  ],\n  \"MaxResults\": 10\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_38feef670a4a48bca17d2e66",
+      "_type": "request",
+      "name": "ListPriceLists",
+      "parentId": "fld_d64a56e8e19e43e8b277b53b",
+      "description": "Lista listas de pre\u00e7os do EC2.",
+      "method": "POST",
+      "url": "https://api.pricing.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSPriceListService.ListPriceLists"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ServiceCode\": \"AmazonEC2\",\n  \"EffectiveDate\": \"2026-02-01T00:00:00Z\",\n  \"CurrencyCode\": \"USD\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_84b1ab5a712d4e70a7356cad",
+      "_type": "request_group",
+      "name": "Savings Plans API",
+      "parentId": "fld_73d4a01e84474e488f73b696"
+    },
+    {
+      "_id": "req_0ed2b0342ca6490ebecea929",
+      "_type": "request",
+      "name": "DescribeSavingsPlans",
+      "parentId": "fld_84b1ab5a712d4e70a7356cad",
+      "description": "Lista Savings Plans ativos.",
+      "method": "POST",
+      "url": "https://savingsplans.amazonaws.com/DescribeSavingsPlans",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"states\": [\n    \"active\"\n  ],\n  \"maxResults\": 100\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_d2f7c47c5d4345458509ac56",
+      "_type": "request",
+      "name": "DescribeSavingsPlansOfferings",
+      "parentId": "fld_84b1ab5a712d4e70a7356cad",
+      "description": "Lista ofertas de Compute SP.",
+      "method": "POST",
+      "url": "https://savingsplans.amazonaws.com/DescribeSavingsPlansOfferings",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"planTypes\": [\n    \"Compute\"\n  ],\n  \"paymentOptions\": [\n    \"No Upfront\"\n  ],\n  \"durations\": [\n    31536000\n  ],\n  \"maxResults\": 50\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_a7932245fa544c68bbcd30d8",
+      "_type": "request",
+      "name": "DescribeSavingsPlansOfferingRates",
+      "parentId": "fld_84b1ab5a712d4e70a7356cad",
+      "description": "Taxas detalhadas de ofertas de SP.",
+      "method": "POST",
+      "url": "https://savingsplans.amazonaws.com/DescribeSavingsPlansOfferingRates",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"savingsPlanTypes\": [\n    \"Compute\"\n  ],\n  \"products\": [\n    \"EC2\"\n  ],\n  \"maxResults\": 100\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_19c42a231a3b4edea5677545",
+      "_type": "request_group",
+      "name": "04 - INVENTORY",
+      "parentId": "wrk_finops_aws"
+    },
+    {
+      "_id": "fld_7359895cd403415393cbbdb3",
+      "_type": "request_group",
+      "name": "Amazon EC2",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_9ae109894cde448c98925e1d",
+      "_type": "request",
+      "name": "DescribeInstances (Running)",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista inst\u00e2ncias EC2 em execu\u00e7\u00e3o.",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeInstances"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "Filter.1.Name",
+            "value": "instance-state-name"
+          },
+          {
+            "name": "Filter.1.Value.1",
+            "value": "running"
+          },
+          {
+            "name": "MaxResults",
+            "value": "100"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_7b41a1f7c7e64f3eb89040c3",
+      "_type": "request",
+      "name": "DescribeInstances (Stopped)",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista inst\u00e2ncias EC2 paradas (custo de EBS continua).",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeInstances"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "Filter.1.Name",
+            "value": "instance-state-name"
+          },
+          {
+            "name": "Filter.1.Value.1",
+            "value": "stopped"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_a979baf0595947538ce29902",
+      "_type": "request",
+      "name": "DescribeVolumes (Unattached)",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista volumes EBS n\u00e3o anexados (desperd\u00edcio).",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeVolumes"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "Filter.1.Name",
+            "value": "status"
+          },
+          {
+            "name": "Filter.1.Value.1",
+            "value": "available"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_fa58e9bdd6c5410ca7b0af5c",
+      "_type": "request",
+      "name": "DescribeVolumes (All)",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista todos os volumes EBS.",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeVolumes"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "MaxResults",
+            "value": "500"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_04b0edb851ca43c4983ec122",
+      "_type": "request",
+      "name": "DescribeSnapshots (Own)",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista snapshots EBS pr\u00f3prios.",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeSnapshots"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "Owner.1",
+            "value": "self"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_41507942383b446ab5d93fb9",
+      "_type": "request",
+      "name": "DescribeAddresses",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista Elastic IPs (n\u00e3o associados = custo).",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeAddresses"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_7cca8efe88fe405e8dc37560",
+      "_type": "request",
+      "name": "DescribeNatGateways",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista NAT Gateways ($0.045/hora + dados).",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeNatGateways"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "Filter.1.Name",
+            "value": "state"
+          },
+          {
+            "name": "Filter.1.Value.1",
+            "value": "available"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_403af283fc5142dbb1018ada",
+      "_type": "request",
+      "name": "DescribeReservedInstances",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista Reserved Instances ativas.",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeReservedInstances"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "Filter.1.Name",
+            "value": "state"
+          },
+          {
+            "name": "Filter.1.Value.1",
+            "value": "active"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_318d7d860e8d49879cde9b8d",
+      "_type": "request",
+      "name": "DescribeSpotPriceHistory",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Hist\u00f3rico de pre\u00e7os Spot.",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeSpotPriceHistory"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "InstanceType.1",
+            "value": "m5.large"
+          },
+          {
+            "name": "ProductDescription.1",
+            "value": "Linux/UNIX"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_9c12d65105db47ef952b6824",
+      "_type": "request",
+      "name": "DescribeInstanceTypes",
+      "parentId": "fld_7359895cd403415393cbbdb3",
+      "description": "Lista tipos de inst\u00e2ncia com specs (vCPU, mem\u00f3ria).",
+      "method": "POST",
+      "url": "https://ec2.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeInstanceTypes"
+          },
+          {
+            "name": "Version",
+            "value": "2016-11-15"
+          },
+          {
+            "name": "MaxResults",
+            "value": "100"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_6c4217c4c2a04ee8831e6ec7",
+      "_type": "request_group",
+      "name": "Amazon RDS",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_c0a42b75abd5411b9ffe81a2",
+      "_type": "request",
+      "name": "DescribeDBInstances",
+      "parentId": "fld_6c4217c4c2a04ee8831e6ec7",
+      "description": "Lista todas as inst\u00e2ncias RDS.",
+      "method": "POST",
+      "url": "https://rds.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeDBInstances"
+          },
+          {
+            "name": "Version",
+            "value": "2014-10-31"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_d0567b22e95444f582e4dcad",
+      "_type": "request",
+      "name": "DescribeDBClusters",
+      "parentId": "fld_6c4217c4c2a04ee8831e6ec7",
+      "description": "Lista clusters Aurora/RDS.",
+      "method": "POST",
+      "url": "https://rds.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeDBClusters"
+          },
+          {
+            "name": "Version",
+            "value": "2014-10-31"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_44e1400631594610ab6677dc",
+      "_type": "request",
+      "name": "DescribeDBSnapshots",
+      "parentId": "fld_6c4217c4c2a04ee8831e6ec7",
+      "description": "Lista snapshots manuais de RDS.",
+      "method": "POST",
+      "url": "https://rds.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeDBSnapshots"
+          },
+          {
+            "name": "Version",
+            "value": "2014-10-31"
+          },
+          {
+            "name": "SnapshotType",
+            "value": "manual"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_00c47b96ccb2415e902992a5",
+      "_type": "request",
+      "name": "DescribeReservedDBInstances",
+      "parentId": "fld_6c4217c4c2a04ee8831e6ec7",
+      "description": "Lista Reserved DB Instances ativas.",
+      "method": "POST",
+      "url": "https://rds.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeReservedDBInstances"
+          },
+          {
+            "name": "Version",
+            "value": "2014-10-31"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_b7bd898a5cfb438699694484",
+      "_type": "request_group",
+      "name": "AWS Lambda",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_c32f546c27f64c64ba98b764",
+      "_type": "request",
+      "name": "ListFunctions",
+      "parentId": "fld_b7bd898a5cfb438699694484",
+      "description": "Lista todas as fun\u00e7\u00f5es Lambda.",
+      "method": "GET",
+      "url": "https://lambda.{{ _.aws_region }}.amazonaws.com/2015-03-31/functions",
+      "headers": [],
+      "body": {},
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_451127bb56d34dd7a0424f11",
+      "_type": "request",
+      "name": "GetAccountSettings",
+      "parentId": "fld_b7bd898a5cfb438699694484",
+      "description": "Limites e configura\u00e7\u00f5es da conta para Lambda.",
+      "method": "GET",
+      "url": "https://lambda.{{ _.aws_region }}.amazonaws.com/2016-08-19/account-settings",
+      "headers": [],
+      "body": {},
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_1a5348d05032415291f3e06d",
+      "_type": "request_group",
+      "name": "Amazon S3",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_7f8304cfa8e946e385bd95f4",
+      "_type": "request",
+      "name": "ListBuckets",
+      "parentId": "fld_1a5348d05032415291f3e06d",
+      "description": "Lista todos os buckets S3.",
+      "method": "GET",
+      "url": "https://s3.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [],
+      "body": {},
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_0e48ed04fddd45d19564c874",
+      "_type": "request_group",
+      "name": "Amazon ECS",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_7ec6bb792acf4bee8076007a",
+      "_type": "request",
+      "name": "ListClusters",
+      "parentId": "fld_0e48ed04fddd45d19564c874",
+      "description": "Lista todos os clusters ECS.",
+      "method": "POST",
+      "url": "https://ecs.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AmazonEC2ContainerServiceV20141113.ListClusters"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"maxResults\": 100\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_9180eee4110c48a7804214a5",
+      "_type": "request",
+      "name": "ListServices",
+      "parentId": "fld_0e48ed04fddd45d19564c874",
+      "description": "Lista servi\u00e7os de um cluster.",
+      "method": "POST",
+      "url": "https://ecs.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AmazonEC2ContainerServiceV20141113.ListServices"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"cluster\": \"CLUSTER_NAME_HERE\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_a7dd647fe6f94439b0718b6f",
+      "_type": "request_group",
+      "name": "Amazon EKS",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_d0451f2079144294b72807cc",
+      "_type": "request",
+      "name": "ListClusters",
+      "parentId": "fld_a7dd647fe6f94439b0718b6f",
+      "description": "Lista todos os clusters EKS.",
+      "method": "GET",
+      "url": "https://eks.{{ _.aws_region }}.amazonaws.com/clusters",
+      "headers": [],
+      "body": {},
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_7c5865e935694d459f0f3ecb",
+      "_type": "request_group",
+      "name": "Amazon ElastiCache",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_3230d4f3d9d744f2a96dd230",
+      "_type": "request",
+      "name": "DescribeCacheClusters",
+      "parentId": "fld_7c5865e935694d459f0f3ecb",
+      "description": "Lista clusters ElastiCache com detalhes de n\u00f3s.",
+      "method": "POST",
+      "url": "https://elasticache.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeCacheClusters"
+          },
+          {
+            "name": "Version",
+            "value": "2015-02-02"
+          },
+          {
+            "name": "ShowCacheNodeInfo",
+            "value": "true"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_a57ba9172d354f9fa26edcfd",
+      "_type": "request",
+      "name": "DescribeReservedCacheNodes",
+      "parentId": "fld_7c5865e935694d459f0f3ecb",
+      "description": "Lista Reserved Cache Nodes ativas.",
+      "method": "POST",
+      "url": "https://elasticache.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeReservedCacheNodes"
+          },
+          {
+            "name": "Version",
+            "value": "2015-02-02"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_e1df9bc664334c5c820d601a",
+      "_type": "request_group",
+      "name": "Amazon DynamoDB",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_30fd5a5f0a824fd3b919df1e",
+      "_type": "request",
+      "name": "ListTables",
+      "parentId": "fld_e1df9bc664334c5c820d601a",
+      "description": "Lista todas as tabelas DynamoDB.",
+      "method": "POST",
+      "url": "https://dynamodb.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "DynamoDB_20120810.ListTables"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Limit\": 100\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_9c7f9580c69f40609a0532d3",
+      "_type": "request",
+      "name": "DescribeTable",
+      "parentId": "fld_e1df9bc664334c5c820d601a",
+      "description": "Detalhes de uma tabela (capacidade, modo de billing).",
+      "method": "POST",
+      "url": "https://dynamodb.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.0"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "DynamoDB_20120810.DescribeTable"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TableName\": \"TABLE_NAME_HERE\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_f57e4f3bb56f4ac48774082a",
+      "_type": "request_group",
+      "name": "Amazon Redshift",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_ac1077a5d6724677aad8e8d7",
+      "_type": "request",
+      "name": "DescribeClusters",
+      "parentId": "fld_f57e4f3bb56f4ac48774082a",
+      "description": "Lista todos os clusters Redshift.",
+      "method": "POST",
+      "url": "https://redshift.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeClusters"
+          },
+          {
+            "name": "Version",
+            "value": "2012-12-01"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_2e9f476593384bd9b9a109a7",
+      "_type": "request",
+      "name": "DescribeReservedNodes",
+      "parentId": "fld_f57e4f3bb56f4ac48774082a",
+      "description": "Lista Reserved Nodes ativas do Redshift.",
+      "method": "POST",
+      "url": "https://redshift.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeReservedNodes"
+          },
+          {
+            "name": "Version",
+            "value": "2012-12-01"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_feaab572ef68417f861cd758",
+      "_type": "request_group",
+      "name": "Elastic Load Balancing",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_8ec426ce0dbc499c86142308",
+      "_type": "request",
+      "name": "DescribeLoadBalancers",
+      "parentId": "fld_feaab572ef68417f861cd758",
+      "description": "Lista todos os ALBs, NLBs e GLBs.",
+      "method": "POST",
+      "url": "https://elasticloadbalancing.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeLoadBalancers"
+          },
+          {
+            "name": "Version",
+            "value": "2015-12-01"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_21d360becdce46b7bb3b8f02",
+      "_type": "request",
+      "name": "DescribeTargetGroups",
+      "parentId": "fld_feaab572ef68417f861cd758",
+      "description": "Lista todos os Target Groups.",
+      "method": "POST",
+      "url": "https://elasticloadbalancing.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeTargetGroups"
+          },
+          {
+            "name": "Version",
+            "value": "2015-12-01"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_a6952516163d437f9d7bf3aa",
+      "_type": "request_group",
+      "name": "Auto Scaling",
+      "parentId": "fld_19c42a231a3b4edea5677545"
+    },
+    {
+      "_id": "req_de07bec009394cbdbb0bc1e3",
+      "_type": "request",
+      "name": "DescribeAutoScalingGroups",
+      "parentId": "fld_a6952516163d437f9d7bf3aa",
+      "description": "Lista todos os ASGs (min, max, desired).",
+      "method": "POST",
+      "url": "https://autoscaling.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeAutoScalingGroups"
+          },
+          {
+            "name": "Version",
+            "value": "2011-01-01"
+          },
+          {
+            "name": "MaxRecords",
+            "value": "100"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_a5db29f63b4e4829a6b1bef7",
+      "_type": "request_group",
+      "name": "05 - GOVERNANCE",
+      "parentId": "wrk_finops_aws"
+    },
+    {
+      "_id": "fld_528c8103726042d98b36e11f",
+      "_type": "request_group",
+      "name": "AWS Organizations",
+      "parentId": "fld_a5db29f63b4e4829a6b1bef7"
+    },
+    {
+      "_id": "req_62220ddda4ad45ef91c994e0",
+      "_type": "request",
+      "name": "DescribeOrganization",
+      "parentId": "fld_528c8103726042d98b36e11f",
+      "description": "Informa\u00e7\u00f5es sobre a organiza\u00e7\u00e3o AWS.",
+      "method": "POST",
+      "url": "https://organizations.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSOrganizationsV20161128.DescribeOrganization"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_50046c5e95db4bd18b48e489",
+      "_type": "request",
+      "name": "ListAccounts",
+      "parentId": "fld_528c8103726042d98b36e11f",
+      "description": "Lista todas as contas da organiza\u00e7\u00e3o.",
+      "method": "POST",
+      "url": "https://organizations.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSOrganizationsV20161128.ListAccounts"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_82a0277a4d044639b59ba09b",
+      "_type": "request",
+      "name": "ListRoots",
+      "parentId": "fld_528c8103726042d98b36e11f",
+      "description": "Lista as ra\u00edzes da organiza\u00e7\u00e3o.",
+      "method": "POST",
+      "url": "https://organizations.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSOrganizationsV20161128.ListRoots"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_848ec66062ef4bdab4034b22",
+      "_type": "request",
+      "name": "ListOrganizationalUnitsForParent",
+      "parentId": "fld_528c8103726042d98b36e11f",
+      "description": "Lista OUs de um parent.",
+      "method": "POST",
+      "url": "https://organizations.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSOrganizationsV20161128.ListOrganizationalUnitsForParent"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ParentId\": \"r-ROOT_ID\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_d37f39d198fb48bc9b552257",
+      "_type": "request",
+      "name": "ListAccountsForParent",
+      "parentId": "fld_528c8103726042d98b36e11f",
+      "description": "Lista contas de um parent.",
+      "method": "POST",
+      "url": "https://organizations.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "AWSOrganizationsV20161128.ListAccountsForParent"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ParentId\": \"ou-OU_ID\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_115575c585c24699a712c20d",
+      "_type": "request_group",
+      "name": "Resource Groups Tagging",
+      "parentId": "fld_a5db29f63b4e4829a6b1bef7"
+    },
+    {
+      "_id": "req_a86995e436a74a139429aeac",
+      "_type": "request",
+      "name": "GetResources (por Tag)",
+      "parentId": "fld_115575c585c24699a712c20d",
+      "description": "Busca recursos por tag.",
+      "method": "POST",
+      "url": "https://tagging.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ResourceGroupsTaggingAPI_20170126.GetResources"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TagFilters\": [\n    {\n      \"Key\": \"Environment\",\n      \"Values\": [\n        \"Production\"\n      ]\n    }\n  ],\n  \"ResourceTypeFilters\": [\n    \"ec2:instance\",\n    \"rds:db\"\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_264991893f614c95af4b74ad",
+      "_type": "request",
+      "name": "GetResources (sem CostCenter)",
+      "parentId": "fld_115575c585c24699a712c20d",
+      "description": "Recursos sem a tag CostCenter.",
+      "method": "POST",
+      "url": "https://tagging.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ResourceGroupsTaggingAPI_20170126.GetResources"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"TagFilters\": [\n    {\n      \"Key\": \"CostCenter\"\n    }\n  ],\n  \"ExcludeCompliantResources\": true,\n  \"IncludeComplianceDetails\": true\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_ce09913a97bd48b1a3a3e25e",
+      "_type": "request",
+      "name": "GetTagKeys",
+      "parentId": "fld_115575c585c24699a712c20d",
+      "description": "Lista todas as chaves de tag em uso.",
+      "method": "POST",
+      "url": "https://tagging.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ResourceGroupsTaggingAPI_20170126.GetTagKeys"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_c4f8ee462d1a4c66af4bfa55",
+      "_type": "request",
+      "name": "GetTagValues",
+      "parentId": "fld_115575c585c24699a712c20d",
+      "description": "Lista valores da tag Environment.",
+      "method": "POST",
+      "url": "https://tagging.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ResourceGroupsTaggingAPI_20170126.GetTagValues"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Key\": \"Environment\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_73b08131117544d7999acbb6",
+      "_type": "request",
+      "name": "GetComplianceSummary",
+      "parentId": "fld_115575c585c24699a712c20d",
+      "description": "Resumo de compliance de tags.",
+      "method": "POST",
+      "url": "https://tagging.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ResourceGroupsTaggingAPI_20170126.GetComplianceSummary"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"GroupBy\": [\n    \"RESOURCE_TYPE\"\n  ]\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_b350c899937c4d4893b77f0b",
+      "_type": "request_group",
+      "name": "AWS Config",
+      "parentId": "fld_a5db29f63b4e4829a6b1bef7"
+    },
+    {
+      "_id": "req_a8596541e28e474fa44b3dff",
+      "_type": "request",
+      "name": "GetDiscoveredResourceCounts",
+      "parentId": "fld_b350c899937c4d4893b77f0b",
+      "description": "Contagem de recursos por tipo.",
+      "method": "POST",
+      "url": "https://config.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "StarlingDoveService.GetDiscoveredResourceCounts"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_bafcf8559c9747c7920dfef3",
+      "_type": "request",
+      "name": "SelectResourceConfig (EC2)",
+      "parentId": "fld_b350c899937c4d4893b77f0b",
+      "description": "SQL: Lista inst\u00e2ncias EC2 com tipo e tags.",
+      "method": "POST",
+      "url": "https://config.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "StarlingDoveService.SelectResourceConfig"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Expression\": \"SELECT resourceId, resourceType, configuration.instanceType, tags WHERE resourceType = 'AWS::EC2::Instance'\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_495d034ad8db4be28439d90b",
+      "_type": "request",
+      "name": "SelectResourceConfig (EBS n\u00e3o anexados)",
+      "parentId": "fld_b350c899937c4d4893b77f0b",
+      "description": "SQL: Volumes EBS n\u00e3o anexados.",
+      "method": "POST",
+      "url": "https://config.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "StarlingDoveService.SelectResourceConfig"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Expression\": \"SELECT resourceId, configuration.size, configuration.volumeType WHERE resourceType = 'AWS::EC2::Volume' AND configuration.state = 'available'\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_02e7cbe5ce454543aa87e662",
+      "_type": "request",
+      "name": "SelectResourceConfig (sem CostCenter)",
+      "parentId": "fld_b350c899937c4d4893b77f0b",
+      "description": "SQL: Recursos sem tag CostCenter.",
+      "method": "POST",
+      "url": "https://config.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "StarlingDoveService.SelectResourceConfig"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"Expression\": \"SELECT resourceId, resourceType WHERE tags.tag('CostCenter') IS NULL\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_45724eb2bc994a169fb56102",
+      "_type": "request_group",
+      "name": "Service Quotas",
+      "parentId": "fld_a5db29f63b4e4829a6b1bef7"
+    },
+    {
+      "_id": "req_13c9d171ed4e488f8c5324a0",
+      "_type": "request",
+      "name": "ListServices",
+      "parentId": "fld_45724eb2bc994a169fb56102",
+      "description": "Lista servi\u00e7os com cotas gerenci\u00e1veis.",
+      "method": "POST",
+      "url": "https://servicequotas.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ServiceQuotasV20190624.ListServices"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_d7a7f21e6bde4ceb8d73a0db",
+      "_type": "request",
+      "name": "ListServiceQuotas (EC2)",
+      "parentId": "fld_45724eb2bc994a169fb56102",
+      "description": "Lista cotas do EC2.",
+      "method": "POST",
+      "url": "https://servicequotas.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-amz-json-1.1"
+        },
+        {
+          "name": "X-Amz-Target",
+          "value": "ServiceQuotasV20190624.ListServiceQuotas"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ServiceCode\": \"ec2\"\n}"
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "fld_e2f94cc8771245a18bc7f34a",
+      "_type": "request_group",
+      "name": "06 - MONITORING",
+      "parentId": "wrk_finops_aws"
+    },
+    {
+      "_id": "fld_1936b52908854b2eb88a48da",
+      "_type": "request_group",
+      "name": "Amazon CloudWatch",
+      "parentId": "fld_e2f94cc8771245a18bc7f34a"
+    },
+    {
+      "_id": "req_12f64adc8d41412899e7fdf5",
+      "_type": "request",
+      "name": "ListMetrics (EC2)",
+      "parentId": "fld_1936b52908854b2eb88a48da",
+      "description": "Lista m\u00e9tricas dispon\u00edveis para EC2.",
+      "method": "POST",
+      "url": "https://monitoring.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "ListMetrics"
+          },
+          {
+            "name": "Version",
+            "value": "2010-08-01"
+          },
+          {
+            "name": "Namespace",
+            "value": "AWS/EC2"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_12892999c2694d57ab084dfe",
+      "_type": "request",
+      "name": "ListMetrics (RDS)",
+      "parentId": "fld_1936b52908854b2eb88a48da",
+      "description": "Lista m\u00e9tricas dispon\u00edveis para RDS.",
+      "method": "POST",
+      "url": "https://monitoring.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "ListMetrics"
+          },
+          {
+            "name": "Version",
+            "value": "2010-08-01"
+          },
+          {
+            "name": "Namespace",
+            "value": "AWS/RDS"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_a165c67d089c4a17912e7832",
+      "_type": "request",
+      "name": "ListMetrics (Billing)",
+      "parentId": "fld_1936b52908854b2eb88a48da",
+      "description": "Lista m\u00e9tricas de billing (us-east-1 apenas).",
+      "method": "POST",
+      "url": "https://monitoring.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "ListMetrics"
+          },
+          {
+            "name": "Version",
+            "value": "2010-08-01"
+          },
+          {
+            "name": "Namespace",
+            "value": "AWS/Billing"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_ac5f3e9c62204de9b917e234",
+      "_type": "request",
+      "name": "GetMetricStatistics (EstimatedCharges)",
+      "parentId": "fld_1936b52908854b2eb88a48da",
+      "description": "Custos estimados acumulados no m\u00eas (us-east-1).",
+      "method": "POST",
+      "url": "https://monitoring.us-east-1.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "GetMetricStatistics"
+          },
+          {
+            "name": "Version",
+            "value": "2010-08-01"
+          },
+          {
+            "name": "Namespace",
+            "value": "AWS/Billing"
+          },
+          {
+            "name": "MetricName",
+            "value": "EstimatedCharges"
+          },
+          {
+            "name": "Dimensions.member.1.Name",
+            "value": "Currency"
+          },
+          {
+            "name": "Dimensions.member.1.Value",
+            "value": "USD"
+          },
+          {
+            "name": "StartTime",
+            "value": "2026-02-01T00:00:00Z"
+          },
+          {
+            "name": "EndTime",
+            "value": "2026-02-23T23:59:59Z"
+          },
+          {
+            "name": "Period",
+            "value": "86400"
+          },
+          {
+            "name": "Statistics.member.1",
+            "value": "Maximum"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_5d2d2d5bc6014b81b6c4e934",
+      "_type": "request",
+      "name": "DescribeAlarms",
+      "parentId": "fld_1936b52908854b2eb88a48da",
+      "description": "Lista todos os alarmes configurados.",
+      "method": "POST",
+      "url": "https://monitoring.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeAlarms"
+          },
+          {
+            "name": "Version",
+            "value": "2010-08-01"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    },
+    {
+      "_id": "req_291e7a8a08694d6c99e98c90",
+      "_type": "request",
+      "name": "DescribeAlarms (ALARM state)",
+      "parentId": "fld_1936b52908854b2eb88a48da",
+      "description": "Lista alarmes em estado ALARM.",
+      "method": "POST",
+      "url": "https://monitoring.{{ _.aws_region }}.amazonaws.com/",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/x-www-form-urlencoded"
+        }
+      ],
+      "body": {
+        "mimeType": "application/x-www-form-urlencoded",
+        "params": [
+          {
+            "name": "Action",
+            "value": "DescribeAlarms"
+          },
+          {
+            "name": "Version",
+            "value": "2010-08-01"
+          },
+          {
+            "name": "StateValue",
+            "value": "ALARM"
+          }
+        ]
+      },
+      "authentication": {
+        "type": "iam",
+        "disabled": false,
+        "accessKeyId": "{{ _.aws_access_key }}",
+        "secretAccessKey": "{{ _.aws_secret_key }}",
+        "sessionToken": "{{ _.aws_session_token }}",
+        "region": "{{ _.aws_region }}"
+      }
+    }
+  ]
+}

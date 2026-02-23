@@ -1,0 +1,426 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CostExplorerReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "ce:GetCostAndUsage",
+        "ce:GetCostAndUsageWithResources",
+        "ce:GetCostForecast",
+        "ce:GetUsageForecast",
+        "ce:GetDimensionValues",
+        "ce:GetTags",
+        "ce:GetReservationCoverage",
+        "ce:GetReservationUtilization",
+        "ce:GetReservationPurchaseRecommendation",
+        "ce:GetSavingsPlansCoverage",
+        "ce:GetSavingsPlansUtilizationDetails",
+        "ce:GetSavingsPlansPurchaseRecommendation",
+        "ce:GetRightsizingRecommendation",
+        "ce:GetCostCategories",
+        "ce:ListCostCategoryDefinitions",
+        "ce:ListCostAllocationTags",
+        "ce:ListCostAllocationTagBackfillHistory",
+        "ce:GetApproximateUsageRecords",
+        "ce:GetAnomalies",
+        "ce:GetAnomalyMonitors",
+        "ce:GetAnomalySubscriptions",
+        "ce:ListTagsForResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CostOptimizationHubReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "cost-optimization-hub:GetPreferences",
+        "cost-optimization-hub:GetRecommendation",
+        "cost-optimization-hub:ListEnrollmentStatuses",
+        "cost-optimization-hub:ListRecommendations",
+        "cost-optimization-hub:ListRecommendationSummaries"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "BudgetsReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "budgets:ViewBudget",
+        "budgets:DescribeBudget",
+        "budgets:DescribeBudgets",
+        "budgets:DescribeBudgetAction",
+        "budgets:DescribeBudgetActionsForAccount",
+        "budgets:DescribeBudgetActionsForBudget",
+        "budgets:DescribeBudgetPerformanceHistory",
+        "budgets:DescribeNotificationsForBudget",
+        "budgets:DescribeSubscribersForNotification",
+        "budgets:DescribeBudgetNotificationsForAccount"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CURReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "cur:DescribeReportDefinitions",
+        "cur:ListTagsForResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "BCMDataExportsReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "bcm-data-exports:GetExport",
+        "bcm-data-exports:ListExports",
+        "bcm-data-exports:GetTable",
+        "bcm-data-exports:ListTables",
+        "bcm-data-exports:ListExecutions",
+        "bcm-data-exports:ListTagsForResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "BillingConductorReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "billingconductor:ListBillingGroups",
+        "billingconductor:ListBillingGroupCostReports",
+        "billingconductor:ListPricingPlans",
+        "billingconductor:ListPricingRules",
+        "billingconductor:ListAccountAssociations",
+        "billingconductor:ListCustomLineItems",
+        "billingconductor:ListPricingPlansAssociatedWithPricingRule",
+        "billingconductor:ListPricingRulesAssociatedToPricingPlan"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "BillingReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "billing:ListBillingViews",
+        "billing:GetBillingView"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ComputeOptimizerReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "compute-optimizer:GetEnrollmentStatus",
+        "compute-optimizer:GetRecommendationSummaries",
+        "compute-optimizer:GetEC2InstanceRecommendations",
+        "compute-optimizer:GetAutoScalingGroupRecommendations",
+        "compute-optimizer:GetEBSVolumeRecommendations",
+        "compute-optimizer:GetLambdaFunctionRecommendations",
+        "compute-optimizer:GetECSServiceRecommendations",
+        "compute-optimizer:GetRDSDatabaseRecommendations",
+        "compute-optimizer:GetLicenseRecommendations",
+        "compute-optimizer:GetIdleRecommendations",
+        "compute-optimizer:GetRecommendationPreferences",
+        "compute-optimizer:GetEffectiveRecommendationPreferences",
+        "compute-optimizer:GetEnrollmentStatusesForOrganization"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "TrustedAdvisorReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "support:DescribeTrustedAdvisorChecks",
+        "support:DescribeTrustedAdvisorCheckResult",
+        "support:DescribeTrustedAdvisorCheckSummaries",
+        "support:DescribeTrustedAdvisorCheckRefreshStatuses",
+        "trustedadvisor:ListChecks",
+        "trustedadvisor:ListRecommendations",
+        "trustedadvisor:GetRecommendation",
+        "trustedadvisor:ListRecommendationResources",
+        "trustedadvisor:ListOrganizationRecommendations"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "PricingReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "pricing:DescribeServices",
+        "pricing:GetAttributeValues",
+        "pricing:GetProducts",
+        "pricing:GetPriceListFileUrl",
+        "pricing:ListPriceLists"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SavingsPlansReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "savingsplans:DescribeSavingsPlans",
+        "savingsplans:DescribeSavingsPlansOfferings",
+        "savingsplans:DescribeSavingsPlansOfferingRates",
+        "savingsplans:ListTagsForResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EC2ReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "ec2:DescribeInstanceTypes",
+        "ec2:DescribeVolumes",
+        "ec2:DescribeSnapshots",
+        "ec2:DescribeAddresses",
+        "ec2:DescribeNatGateways",
+        "ec2:DescribeReservedInstances",
+        "ec2:DescribeReservedInstancesOfferings",
+        "ec2:DescribeReservedInstancesModifications",
+        "ec2:DescribeSpotInstanceRequests",
+        "ec2:DescribeSpotPriceHistory",
+        "ec2:DescribeImages",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeVpcs",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeNetworkInterfaces"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "RDSReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "rds:DescribeDBInstances",
+        "rds:DescribeDBClusters",
+        "rds:DescribeDBSnapshots",
+        "rds:DescribeDBClusterSnapshots",
+        "rds:DescribeReservedDBInstances",
+        "rds:DescribeReservedDBInstancesOfferings",
+        "rds:DescribeDBInstanceAutomatedBackups"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "LambdaReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:ListFunctions",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:GetAccountSettings",
+        "lambda:ListVersionsByFunction",
+        "lambda:ListAliases"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "S3ReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListAllMyBuckets",
+        "s3:GetBucketLocation",
+        "s3:GetBucketTagging",
+        "s3:GetBucketMetricsConfiguration",
+        "s3:ListBucketMetricsConfigurations"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ECSReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "ecs:ListClusters",
+        "ecs:DescribeClusters",
+        "ecs:ListServices",
+        "ecs:DescribeServices",
+        "ecs:ListTasks",
+        "ecs:DescribeTasks",
+        "ecs:ListTaskDefinitions",
+        "ecs:DescribeTaskDefinition",
+        "ecs:ListContainerInstances",
+        "ecs:DescribeContainerInstances"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "EKSReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "eks:ListClusters",
+        "eks:DescribeCluster",
+        "eks:ListNodegroups",
+        "eks:DescribeNodegroup",
+        "eks:ListFargateProfiles",
+        "eks:DescribeFargateProfile"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ElastiCacheReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "elasticache:DescribeCacheClusters",
+        "elasticache:DescribeReservedCacheNodes",
+        "elasticache:DescribeReservedCacheNodesOfferings",
+        "elasticache:DescribeReplicationGroups"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DynamoDBReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:ListTables",
+        "dynamodb:DescribeTable",
+        "dynamodb:DescribeReservedCapacity",
+        "dynamodb:DescribeReservedCapacityOfferings",
+        "dynamodb:DescribeContinuousBackups",
+        "dynamodb:ListBackups"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "RedshiftReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "redshift:DescribeClusters",
+        "redshift:DescribeReservedNodes",
+        "redshift:DescribeReservedNodeOfferings",
+        "redshift:DescribeClusterSnapshots"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ELBReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "elasticloadbalancing:DescribeLoadBalancers",
+        "elasticloadbalancing:DescribeTargetGroups",
+        "elasticloadbalancing:DescribeTargetHealth",
+        "elasticloadbalancing:DescribeListeners",
+        "elasticloadbalancing:DescribeTags"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AutoScalingReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "autoscaling:DescribeAutoScalingGroups",
+        "autoscaling:DescribePolicies",
+        "autoscaling:DescribeScalingActivities",
+        "autoscaling:DescribeScheduledActions",
+        "autoscaling:DescribeTags"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "OrganizationsReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "organizations:DescribeOrganization",
+        "organizations:ListAccounts",
+        "organizations:DescribeAccount",
+        "organizations:ListOrganizationalUnitsForParent",
+        "organizations:ListAccountsForParent",
+        "organizations:ListRoots",
+        "organizations:ListChildren",
+        "organizations:ListTagsForResource"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "TaggingReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "tag:GetResources",
+        "tag:GetTagKeys",
+        "tag:GetTagValues",
+        "tag:GetComplianceSummary"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ConfigReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "config:GetDiscoveredResourceCounts",
+        "config:ListDiscoveredResources",
+        "config:SelectResourceConfig",
+        "config:SelectAggregateResourceConfig",
+        "config:DescribeComplianceByConfigRule",
+        "config:DescribeComplianceByResource",
+        "config:GetComplianceDetailsByConfigRule",
+        "config:GetResourceConfigHistory",
+        "config:BatchGetResourceConfig",
+        "config:DescribeConfigRules"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "ServiceQuotasReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "servicequotas:ListServices",
+        "servicequotas:ListServiceQuotas",
+        "servicequotas:GetServiceQuota",
+        "servicequotas:GetAWSDefaultServiceQuota",
+        "servicequotas:ListRequestedServiceQuotaChangeHistory"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "LicenseManagerReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "license-manager:ListLicenseConfigurations",
+        "license-manager:GetLicenseConfiguration",
+        "license-manager:ListUsageForLicenseConfiguration",
+        "license-manager:ListResourceInventory"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "WellArchitectedReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "wellarchitected:ListWorkloads",
+        "wellarchitected:GetWorkload",
+        "wellarchitected:ListLensReviews",
+        "wellarchitected:GetLensReview",
+        "wellarchitected:ListAnswers",
+        "wellarchitected:ListLenses"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "SSMReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:DescribeInstanceInformation",
+        "ssm:GetInventory",
+        "ssm:ListComplianceSummaries",
+        "ssm:ListComplianceItems"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudWatchReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:GetMetricData",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:ListMetrics",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:DescribeAlarmsForMetric",
+        "cloudwatch:GetDashboard",
+        "cloudwatch:ListDashboards",
+        "cloudwatch:DescribeInsightRules",
+        "cloudwatch:GetInsightRuleReport",
+        "cloudwatch:DescribeAnomalyDetectors"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

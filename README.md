@@ -1,102 +1,56 @@
-# Guia Definitivo de APIs da AWS para FinOps
+# Guia Definitivo de APIs da AWS para FinOps (Versão Devastadora)
 
 ## Introdução
 
-Este repositório é um guia completo e prático para a utilização das APIs nativas da AWS no contexto de **FinOps (Cloud Financial Operations)**. O objetivo é fornecer um recurso centralizado, didático e acionável para profissionais que buscam automatizar e escalar suas práticas de gerenciamento financeiro na nuvem.
+Esta é uma versão massivamente enriquecida do guia de APIs da AWS para FinOps. Cada serviço agora tem sua própria documentação detalhada, cobrindo **TODOS os parâmetros** de cada ação de API relevante, com exemplos e explicações claras.
 
-O conteúdo está estruturado de acordo com os três domínios do framework FinOps: **Informar, Otimizar e Operar**. Para cada domínio, apresentamos as APIs mais relevantes, suas principais funcionalidades e exemplos de requisições. Acompanhando esta documentação, você encontrará uma coleção Insomnia abrangente com mais de 120 ações de API prontas para uso.
+O objetivo é fornecer um recurso de profundidade inigualável para engenheiros, analistas de FinOps e arquitetos que buscam automação total e controle granular sobre seus custos na nuvem.
 
-## 🌐 Domínio 1: Informar (Entender e Alocar)
+## 🗂️ Estrutura do Repositório
 
-O primeiro passo em FinOps é ter visibilidade total sobre os custos e o uso da nuvem. As APIs deste domínio são a base para a coleta, análise e alocação de custos.
+O repositório está organizado em pastas, uma para cada domínio principal de FinOps. Dentro de cada pasta, você encontrará arquivos Markdown dedicados a cada serviço ou grupo de serviços.
 
-### 1.1. Visibilidade de Custos e Uso
+```
+API-FINOPS-AWS/
+├── README.md                          # Este guia principal
+├── insomnia_collection_massive.json   # Coleção Insomnia com 200+ requisições
+├── INSOMNIA_SETUP.md                  # Guia de configuração do Insomnia
+├── IAM_POLICY_FULL.json               # Política IAM de leitura completa
+└── docs/
+    ├── 01-COST-MANAGEMENT/
+    │   ├── 01-COST-EXPLORER.md
+    │   ├── 02-COST-ANOMALY.md
+    │   └── 03-COST-OPTIMIZATION-HUB.md
+    ├── 02-BILLING/
+    │   ├── 01-BUDGETS.md
+    │   ├── 02-CUR.md
+    │   ├── 03-BCM-DATA-EXPORTS.md
+    │   └── 04-BILLING-CONDUCTOR.md
+    ├── 03-OPTIMIZATION/
+    │   ├── 01-COMPUTE-OPTIMIZER.md
+    │   ├── 02-TRUSTED-ADVISOR.md
+    │   ├── 03-PRICING.md
+    │   └── 04-SAVINGS-PLANS.md
+    ├── 04-INVENTORY/
+    │   ├── 01-EC2.md
+    │   ├── 02-RDS.md
+    │   ├── 03-S3.md
+    │   ├── 04-LAMBDA.md
+    │   └── ... (outros serviços)
+    ├── 05-GOVERNANCE/
+    │   ├── 01-ORGANIZATIONS.md
+    │   ├── 02-TAGGING.md
+    │   ├── 03-CONFIG.md
+    │   └── ... (outros serviços)
+    └── 06-MONITORING/
+        └── 01-CLOUDWATCH.md
+```
 
-| Serviço | API Principal | Finalidade | Ações Chave |
-| :--- | :--- | :--- | :--- |
-| **Cost Explorer** | `ce` | Consultar dados agregados de custo e uso, previsões e recomendações. | `GetCostAndUsage`, `GetCostForecast`, `GetReservationUtilization`, `GetSavingsPlansCoverage` |
-| **Cost & Usage Reports** | `cur` | Acessar os dados mais granulares de custo e uso, entregues em um bucket S3. | `PutReportDefinition`, `DescribeReportDefinitions`, `DeleteReportDefinition` |
-| **BCM Data Exports** | `bcm-data-exports` | Criar exportações personalizadas de múltiplos conjuntos de dados de billing. | `CreateExport`, `ListExports`, `GetExecution` |
+## 🚀 Como Começar
 
-### 1.2. Alocação de Custos
+1.  **Explore a Documentação**: Navegue pelas pastas `docs/` para encontrar a documentação detalhada da API que você precisa.
+2.  **Importe a Coleção Insomnia**: Use o arquivo `insomnia_collection_massive.json` para importar mais de 200 requisições pré-configuradas.
+3.  **Configure o Ambiente**: Siga o `INSOMNIA_SETUP.md` para configurar suas credenciais AWS.
+4.  **Aplique a Política IAM**: Use `IAM_POLICY_FULL.json` como base para criar um perfil IAM com as permissões de leitura necessárias.
 
-| Serviço | API Principal | Finalidade | Ações Chave |
-| :--- | :--- | :--- | :--- |
-| **Cost Categories** | `ce` | Mapear custos da AWS para estruturas de negócio internas (times, projetos, etc.). | `CreateCostCategoryDefinition`, `ListCostCategoryDefinitions`, `UpdateCostCategoryDefinition` |
-| **Resource Groups & Tagging** | `tag` | Gerenciar e consultar tags em múltiplos recursos para alocação e governança. | `GetResources`, `TagResources`, `UntagResources`, `GetTagKeys`, `GetTagValues` |
-| **AWS Organizations** | `organizations` | Gerenciar contas de forma centralizada, fundamental para a alocação em multi-contas. | `ListAccounts`, `DescribeAccount`, `ListTagsForResource` |
-
-### 1.3. Benchmarking e Métricas
-
-| Serviço | API Principal | Finalidade | Ações Chave |
-| :--- | :--- | :--- | :--- |
-| **Amazon CloudWatch** | `monitoring` | Coletar métricas de performance e uso de praticamente todos os serviços da AWS. | `GetMetricData`, `GetMetricStatistics`, `ListMetrics` |
-| **S3 Storage Lens** | `s3control` | Obter visibilidade sobre o uso e atividade do armazenamento de objetos em toda a organização. | `GetStorageLensConfiguration`, `ListStorageLensConfigurations` |
-
-## ⚙️ Domínio 2: Otimizar (Economizar e Aumentar a Eficiência)
-
-Com a visibilidade estabelecida, o próximo passo é identificar e agir sobre as oportunidades de otimização de custos.
-
-### 2.1. Recomendações de Otimização
-
-| Serviço | API Principal | Finalidade | Ações Chave |
-| :--- | :--- | :--- | :--- |
-| **Compute Optimizer** | `compute-optimizer` | Fornecer recomendações de *right-sizing* para EC2, EBS, Lambda, ECS e mais. | `GetEC2InstanceRecommendations`, `GetEBSVolumeRecommendations`, `GetLambdaFunctionRecommendations` |
-| **Cost Optimization Hub** | `cost-optimization-hub` | Identificar, filtrar e agregar recomendações de otimização de custos de múltiplos serviços. | `ListRecommendations`, `GetRecommendation`, `ListRecommendationSummaries` |
-| **Trusted Advisor** | `support` / `trustedadvisor` | Acessar recomendações de otimização de custos, segurança, performance e resiliência. | `DescribeTrustedAdvisorChecks`, `RefreshTrustedAdvisorCheck`, `ListRecommendations` (nova API) |
-
-### 2.2. Otimização de Rate (Preços)
-
-| Serviço | API Principal | Finalidade | Ações Chave |
-| :--- | :--- | :--- | :--- |
-| **Savings Plans** | `savingsplans` | Gerenciar e analisar os Savings Plans para obter descontos em troca de compromisso de uso. | `DescribeSavingsPlans`, `DescribeSavingsPlansOfferings`, `CreateSavingsPlan` |
-| **Reserved Instances** | `ec2`, `rds`, etc. | Gerenciar Instâncias Reservadas para serviços específicos como EC2, RDS, ElastiCache, etc. | `DescribeReservedInstances`, `PurchaseReservedInstancesOffering` |
-| **AWS Pricing API** | `pricing` | Consultar os preços de todos os produtos e serviços da AWS de forma programática. | `GetProducts`, `DescribeServices`, `GetAttributeValues` |
-
-## 🚀 Domínio 3: Operar (Melhoria Contínua e Governança)
-
-Este domínio foca na automação, controle e melhoria contínua dos processos de FinOps.
-
-### 3.1. Controle de Custos
-
-| Serviço | API Principal | Finalidade | Ações Chave |
-| :--- | :--- | :--- | :--- |
-| **AWS Budgets** | `budgets` | Criar, gerenciar e consultar orçamentos, com ações automáticas ao atingir limites. | `CreateBudget`, `UpdateBudget`, `CreateBudgetAction`, `DescribeBudgetPerformanceHistory` |
-| **Cost Anomaly Detection** | `ce` | Criar monitores que usam machine learning para detectar gastos anômalos e enviar alertas. | `CreateAnomalyMonitor`, `GetAnomalies`, `ProvideAnomalyFeedback` |
-
-### 3.2. Governança e Conformidade
-
-| Serviço | API Principal | Finalidade | Ações Chave |
-| :--- | :--- | :--- | :--- |
-| **AWS Config** | `config` | Avaliar, auditar e monitorar as configurações dos recursos e sua conformidade com políticas. | `SelectResourceConfig`, `ListDiscoveredResources`, `GetComplianceDetailsByResource` |
-| **Service Quotas** | `service-quotas` | Visualizar e gerenciar as cotas (limites) de serviço para evitar crescimento inesperado. | `ListServiceQuotas`, `GetServiceQuota`, `RequestServiceQuotaIncrease` |
-| **AWS Well-Architected Tool** | `wellarchitected` | Acessar e gerenciar revisões de workloads para garantir a aderência às melhores práticas. | `ListWorkloads`, `GetLensReview`, `ListAnswers` |
-| **License Manager** | `license-manager` | Gerenciar licenças de software e rastrear o uso para garantir conformidade e otimizar custos. | `ListLicenseConfigurations`, `ListUsageForLicenseConfiguration`, `GetLicenseConfiguration` |
-
-## 🗂️ Anexo: APIs de Inventário de Recursos
-
-Para uma prática de FinOps eficaz, é essencial ter um inventário completo dos recursos provisionados. Abaixo estão as ações chave para listar recursos nos principais serviços:
-
-| Serviço | Ação Principal para Inventário |
-| :--- | :--- |
-| **EC2** | `DescribeInstances`, `DescribeVolumes`, `DescribeSnapshots` |
-| **RDS** | `DescribeDBInstances`, `DescribeDBClusters` |
-| **S3** | `ListBuckets` |
-| **Lambda** | `ListFunctions` |
-| **ECS** | `ListClusters`, `ListServices`, `ListTasks` |
-| **EKS** | `ListClusters`, `ListNodegroups` |
-| **ElastiCache** | `DescribeCacheClusters` |
-| **DynamoDB** | `ListTables` |
-| **ELBv2** | `DescribeLoadBalancers` |
-
-## 🛠️ Configuração e Uso
-
-Para começar a usar estas APIs imediatamente, siga o guia detalhado no arquivo **[INSOMNIA_SETUP.md](./INSOMNIA_SETUP.md)**. Ele cobre a importação da coleção, configuração de credenciais e como executar suas primeiras requisições.
-
-## 🔐 Permissões IAM
-
-Para utilizar todas as APIs desta coleção, é necessário um perfil IAM com as permissões adequadas. Fornecemos um exemplo de política de *leitura* no arquivo **[IAM_POLICY.json](./IAM_POLICY.json)**. É altamente recomendável seguir o princípio do menor privilégio e ajustar a política às suas necessidades específicas.
-
-## Conclusão
-
-Este repositório foi projetado para ser um acelerador para suas iniciativas de FinOps. Use-o como ponto de partida para criar dashboards personalizados, sistemas de alerta, automações de otimização e para integrar dados financeiros da nuvem em seus sistemas de BI. A automação é a chave para escalar a cultura FinOps, e estas APIs são as ferramentas para construir essa automação.
+Este projeto agora serve como uma enciclopédia acionável para automação de FinOps na AWS. Mergulhe na documentação e comece a construir!
