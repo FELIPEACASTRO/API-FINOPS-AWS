@@ -1,8 +1,8 @@
-# Guia Detalhado: AWS Cost Anomaly Detection API
+# Guia Devastadoramente Detalhado: AWS Cost Anomaly Detection API
 
 ## Visão Geral
 
-O Cost Anomaly Detection utiliza machine learning para identificar automaticamente gastos anômalos na sua conta AWS. Ele monitora continuamente os padrões de custo e envia alertas quando detecta desvios significativos.
+A detecção de anomalias é uma capacidade proativa do FinOps. Esta API permite que você crie monitores que vigiam seus padrões de gastos e o alertam automaticamente sobre custos inesperados, permitindo uma ação rápida para evitar surpresas na fatura. O serviço usa machine learning para aprender seus padrões de gastos e identificar desvios significativos.
 
 | Atributo | Valor |
 | :--- | :--- |
@@ -14,34 +14,22 @@ O Cost Anomaly Detection utiliza machine learning para identificar automaticamen
 
 ---
 
-## Ações da API
+## 1. CreateAnomalyMonitor
 
-### 1. CreateAnomalyMonitor
+Cria um novo monitor para começar a detectar anomalias nos seus custos. Pense em um monitor como um "vigia" que você configura para olhar para uma parte específica dos seus custos.
 
-Cria um monitor de anomalias que rastreia custos por dimensão usando machine learning.
+### Parâmetros de Entrada
 
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AnomalyMonitor` | Object | Sim | Objeto que define o monitor. |
-| `ResourceTags` | Array | Não | Tags a serem associadas ao monitor. |
+| `AnomalyMonitor` | Objeto | **Sim** | O objeto principal que define a configuração do monitor. Contém as seguintes chaves:<br>- `MonitorName` (String, **Sim**): O nome que você dará ao monitor para identificá-lo facilmente (ex: "Monitor-Custo-EC2", "Monitor-Conta-Dev").<br>- `MonitorType` (String, **Sim**): O tipo de monitor. `DIMENSIONAL` para monitorar uma dimensão padrão da AWS, ou `CUSTOM` para usar um agrupamento mais complexo definido por uma Cost Category.<br>- `MonitorDimension` (String, **Obrigatório se `MonitorType` for `DIMENSIONAL`**): A dimensão a ser monitorada. Valores comuns: `SERVICE` (para monitorar cada serviço AWS como uma unidade), `LINKED_ACCOUNT` (para monitorar cada conta vinculada).<br>- `MonitorSpecification` (Objeto, **Obrigatório se `MonitorType` for `CUSTOM`**): A especificação da Cost Category a ser usada, permitindo criar monitores para grupos lógicos de negócio (ex: por time, projeto, etc.). |
 
-#### Objeto `AnomalyMonitor`
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `MonitorName` | String | Sim | Nome do monitor. |
-| `MonitorType` | String | Sim | `DIMENSIONAL` (por serviço/conta) ou `CUSTOM` (com filtro personalizado). |
-| `MonitorDimension` | String | Sim (se DIMENSIONAL) | `SERVICE` é o único valor suportado. |
-| `MonitorSpecification` | Object | Sim (se CUSTOM) | Expressão de filtro personalizada. |
-
-#### Exemplo de Requisição
+### Exemplo de Requisição (Monitor por Serviço)
 
 ```json
 {
   "AnomalyMonitor": {
-    "MonitorName": "MonitorPorServico",
+    "MonitorName": "Monitor-Geral-Por-Servico",
     "MonitorType": "DIMENSIONAL",
     "MonitorDimension": "SERVICE"
   }
@@ -50,69 +38,22 @@ Cria um monitor de anomalias que rastreia custos por dimensão usando machine le
 
 ---
 
-### 2. CreateAnomalySubscription
+## 2. GetAnomalies
 
-Cria uma assinatura para receber notificações quando anomalias são detectadas.
+Recupera uma lista de anomalias que foram detectadas dentro de um intervalo de datas. Use esta ação para investigar picos de custos passados.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AnomalySubscription` | Object | Sim | Objeto que define a assinatura. |
-| `ResourceTags` | Array | Não | Tags a serem associadas à assinatura. |
+| `DateInterval` | Objeto | **Sim** | O intervalo de datas para buscar anomalias. Contém `StartDate` e `EndDate` no formato `YYYY-MM-DD`. Lembre-se que `EndDate` é exclusivo. |
+| `MonitorArn` | String | Não | O ARN de um monitor específico. Use para focar a investigação em uma área, como os custos de uma conta específica, se você tiver um monitor para ela. Se não for fornecido, a API retorna anomalias de todos os monitores. |
+| `Feedback` | String | Não | Filtra as anomalias com base no feedback que você forneceu anteriormente.<br>**Valores**: `YES` (anomalia confirmada), `NO` (não é uma anomalia), `PLANNED_ACTIVITY` (atividade planejada). Útil para revisar suas análises passadas. |
+| `TotalImpact` | Objeto | Não | Filtra anomalias com base no impacto financeiro total. Contém `NumericOperator` (`GREATER_THAN_OR_EQUAL`, `LESS_THAN`, etc.) e `StartValue`/`EndValue`.<br>**Uso**: Essencial para focar apenas nas anomalias mais caras e ignorar ruídos de baixo valor. |
+| `NextPageToken` | String | Não | Token para paginação, caso a lista de anomalias seja muito longa. |
+| `MaxResults` | Integer | Não | Número máximo de resultados a serem retornados por página. |
 
-#### Objeto `AnomalySubscription`
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `SubscriptionName` | String | Sim | Nome da assinatura. |
-| `Frequency` | String | Sim | `DAILY`, `IMMEDIATE`, `WEEKLY`. |
-| `MonitorArnList` | Array | Sim | Lista de ARNs dos monitores a serem rastreados. |
-| `Subscribers` | Array | Sim | Lista de destinatários (email ou SNS). |
-| `ThresholdExpression` | Object | Não | Expressão para definir o limiar de notificação. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "AnomalySubscription": {
-    "SubscriptionName": "AlertasFinOps",
-    "Frequency": "DAILY",
-    "MonitorArnList": [
-      "arn:aws:ce::123456789012:anomalymonitor/abc123"
-    ],
-    "Subscribers": [
-      {"Address": "finops@example.com", "Type": "EMAIL"}
-    ],
-    "ThresholdExpression": {
-      "Dimensions": {
-        "Key": "ANOMALY_TOTAL_IMPACT_ABSOLUTE",
-        "Values": ["100"],
-        "MatchOptions": ["GREATER_THAN_OR_EQUAL"]
-      }
-    }
-  }
-}
-```
-
----
-
-### 3. GetAnomalies
-
-Retorna as anomalias de custo detectadas no período especificado.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `DateInterval` | Object | Sim | Período com `StartDate` e `EndDate` (formato `YYYY-MM-DD`). |
-| `MonitorArn` | String | Não | Filtra anomalias de um monitor específico. |
-| `Feedback` | String | Não | Filtra por feedback: `YES`, `NO`, `PLANNED_ACTIVITY`. |
-| `TotalImpact` | Object | Não | Filtra por impacto total com `NumericOperator` e `StartValue`/`EndValue`. |
-| `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextPageToken` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
+### Exemplo de Requisição (Buscando anomalias com impacto > $100)
 
 ```json
 {
@@ -122,30 +63,69 @@ Retorna as anomalias de custo detectadas no período especificado.
   },
   "TotalImpact": {
     "NumericOperator": "GREATER_THAN_OR_EQUAL",
-    "StartValue": 50
+    "StartValue": 100
   },
-  "MaxResults": 100
+  "MaxResults": 50
 }
 ```
 
 ---
 
-### 4. ProvideAnomalyFeedback
+## 3. CreateAnomalySubscription
 
-Envia feedback sobre uma anomalia detectada, melhorando a precisão do modelo de ML.
+Cria uma assinatura para receber notificações (alertas) quando um monitor detecta uma anomalia. É a parte "proativa" do serviço.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AnomalyId` | String | Sim | O ID da anomalia. |
-| `Feedback` | String | Sim | `YES` (anomalia real), `NO` (falso positivo), `PLANNED_ACTIVITY` (atividade planejada). |
+| `AnomalySubscription` | Objeto | **Sim** | O objeto principal que define a assinatura. Contém as seguintes chaves:<br>- `SubscriptionName` (String, **Sim**): O nome da sua assinatura de alerta (ex: "Alertas-Time-FinOps").<br>- `MonitorArnList` (Array de Strings, **Sim**): Uma lista contendo os ARNs dos monitores que esta assinatura irá cobrir. Você pode ter uma única assinatura para múltiplos monitores.<br>- `Subscribers` (Array de Objetos, **Sim**): Uma lista de destinatários. Cada objeto `Subscriber` tem `Type` (`EMAIL` ou `SNS`) e `Address` (o endereço de e-mail ou o ARN do tópico SNS). Use `SNS` para integrações automatizadas (ex: postar no Slack, criar um ticket no Jira).<br>- `Frequency` (String, **Sim**): A frequência dos alertas. `IMMEDIATE` para ação rápida em anomalias críticas, `DAILY` para um resumo diário gerenciável, `WEEKLY` para um relatório de alto nível.<br>- `ThresholdExpression` (Objeto, Não): Uma expressão poderosa para definir um limiar de notificação e reduzir ruído. Por exemplo, só enviar alerta se o impacto absoluto for maior que $100. Se não definido, você será notificado sobre todas as anomalias. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Alerta Imediato por E-mail para anomalias > $50)
 
 ```json
 {
-  "AnomalyId": "abc123-def456",
+  "AnomalySubscription": {
+    "SubscriptionName": "Alertas-Criticos-FinOps-Email",
+    "MonitorArnList": [
+      "arn:aws:ce::123456789012:anomalymonitor/MONITOR_ID_AQUI"
+    ],
+    "Subscribers": [
+      {
+        "Type": "EMAIL",
+        "Address": "equipe.finops@exemplo.com"
+      }
+    ],
+    "Frequency": "IMMEDIATE",
+    "ThresholdExpression": {
+      "Dimensions": {
+        "Key": "ANOMALY_TOTAL_IMPACT_ABSOLUTE",
+        "MatchOptions": ["GREATER_THAN_OR_EQUAL"],
+        "Values": ["50"]
+      }
+    }
+  }
+}
+```
+
+---
+
+## 4. ProvideAnomalyFeedback
+
+Permite que você forneça feedback sobre uma anomalia detectada. Este feedback é **crucial**, pois ajuda o modelo de Machine Learning da AWS a se tornar mais inteligente e a reduzir falsos positivos no futuro, personalizando a detecção para o seu padrão de gastos.
+
+### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `AnomalyId` | String | **Sim** | O ID da anomalia para a qual você está fornecendo feedback. Este ID é obtido na resposta da chamada `GetAnomalies`. |
+| `Feedback` | String | **Sim** | Sua avaliação da anomalia.<br>**Valores**: `YES` (Sim, isso foi um pico de custo inesperado e indesejado), `NO` (Não, isso não é uma anomalia relevante para mim), `PLANNED_ACTIVITY` (Sim, mas era uma atividade planejada, como um teste de carga ou uma migração de dados, e não deve ser considerada uma anomalia no futuro). |
+
+### Exemplo de Requisição
+
+```json
+{
+  "AnomalyId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
   "Feedback": "YES"
 }
 ```

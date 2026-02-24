@@ -1,12 +1,12 @@
-# Guia Detalhado: AWS Compute Optimizer API
+# Guia Devastadoramente Detalhado: AWS Compute Optimizer API
 
 ## Visão Geral
 
-O Compute Optimizer utiliza machine learning para analisar métricas de utilização e fornecer recomendações de right-sizing para diversos tipos de recursos.
+O AWS Compute Optimizer é um serviço que utiliza machine learning para analisar as métricas de configuração e utilização dos seus recursos (como instâncias EC2, volumes EBS, funções Lambda e serviços ECS) e gerar recomendações para otimizá-los. Ele ajuda a responder perguntas como "Estou usando o tipo de instância certo?" ou "Posso economizar dinheiro mudando o tamanho deste volume EBS?". A API permite que você acesse essas recomendações de forma programática para integrá-las em seus fluxos de trabalho de FinOps.
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://compute-optimizer.{region}.amazonaws.com/` |
+| **Endpoint** | `https://compute-optimizer.{region}.amazonaws.com` |
 | **Protocolo** | JSON-RPC (POST) |
 | **Content-Type** | `application/x-amz-json-1.0` |
 | **X-Amz-Target Prefix** | `ComputeOptimizerService` |
@@ -14,61 +14,28 @@ O Compute Optimizer utiliza machine learning para analisar métricas de utiliza�
 
 ---
 
-## Ações da API
+## 1. GetEC2InstanceRecommendations
 
-### 1. GetEC2InstanceRecommendations
+Retorna recomendações de otimização para instâncias Amazon EC2.
 
-Retorna recomendações de right-sizing para instâncias EC2.
+### Parâmetros de Entrada
 
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `instanceArns` | Array | Não | ARNs das instâncias para obter recomendações. |
+| `instanceArns` | Array de Strings | Não | Uma lista de ARNs de instâncias específicas para as quais você deseja obter recomendações. Se não for fornecido, retorna para todas as instâncias na conta/região. |
+| `filters` | Array de Objetos | Não | Filtra as recomendações retornadas. Cada objeto de filtro tem `name` e `value`.<br>**Nomes de Filtro**: `Finding` (`Underprovisioned`, `Overprovisioned`, `Optimized`), `RecommendationSourceType` (`Ec2Instance`, `AutoScalingGroup`).<br>**Uso**: Essencial para focar. Use `Finding: Overprovisioned` para listar apenas as instâncias que podem ser reduzidas para economizar custos. |
+| `accountIds` | Array de Strings | Não | Se você for a conta de gerenciamento, pode especificar para quais contas membro deseja obter recomendações. |
+| `maxResults` | Integer | Não | Número máximo de resultados por página. |
 | `nextToken` | String | Não | Token para paginação. |
-| `maxResults` | Integer | Não | Número máximo de resultados. |
-| `filters` | Array | Não | Filtros por `finding`, `recommendationSourceType`, etc. |
-| `accountIds` | Array | Não | IDs de contas para obter recomendações (requer permissão de organização). |
-| `recommendationPreferences` | Object | Não | Preferências de recomendação (ex: `cpuVendorArchitectures`). |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Instâncias superprovisionadas)
 
 ```json
 {
   "filters": [
     {
-      "name": "finding",
-      "values": ["Overprovisioned"]
-    }
-  ],
-  "maxResults": 100
-}
-```
-
----
-
-### 2. GetEBSVolumeRecommendations
-
-Retorna recomendações de otimização para volumes EBS.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `volumeArns` | Array | Não | ARNs dos volumes para obter recomendações. |
-| `nextToken` | String | Não | Token para paginação. |
-| `maxResults` | Integer | Não | Número máximo de resultados. |
-| `filters` | Array | Não | Filtros por `finding`. |
-| `accountIds` | Array | Não | IDs de contas para obter recomendações. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "filters": [
-    {
-      "name": "finding",
-      "values": ["NotOptimized"]
+      "name": "Finding",
+      "value": "Overprovisioned"
     }
   ]
 }
@@ -76,101 +43,173 @@ Retorna recomendações de otimização para volumes EBS.
 
 ---
 
-### 3. GetLambdaFunctionRecommendations
+## 2. GetAutoScalingGroupRecommendations
 
-Retorna recomendações de memória para funções Lambda.
+Retorna recomendações de otimização para grupos de Auto Scaling.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `functionArns` | Array | Não | ARNs das funções para obter recomendações. |
-| `nextToken` | String | Não | Token para paginação. |
+| `autoScalingGroupArns` | Array de Strings | Não | ARNs de grupos de Auto Scaling específicos. |
+| `filters` | Array de Objetos | Não | Filtra as recomendações. Mesmos filtros de `GetEC2InstanceRecommendations`. |
+| `accountIds` | Array de Strings | Não | IDs de contas membro. |
 | `maxResults` | Integer | Não | Número máximo de resultados. |
-| `filters` | Array | Não | Filtros por `finding`. |
-| `accountIds` | Array | Não | IDs de contas para obter recomendações. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "maxResults": 100
-}
-```
-
----
-
-### 4. GetRecommendationSummaries
-
-Retorna um resumo das recomendações por tipo de recurso e por tipo de achado (finding).
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `accountIds` | Array | Não | IDs de contas para obter resumos. |
 | `nextToken` | String | Não | Token para paginação. |
-| `maxResults` | Integer | Não | Número máximo de resultados. |
 
-#### Exemplo de Requisição
-
-```json
-{
-  "accountIds": ["123456789012"]
-}
-```
-
----
-
-### 5. ExportEC2InstanceRecommendations
-
-Exporta as recomendações de instâncias EC2 para um bucket S3 em formato CSV.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `s3DestinationConfig` | Object | Sim | Configuração do bucket S3 de destino. |
-| `fileFormat` | String | Não | `Csv` (padrão). |
-| `includeMemberAccounts` | Boolean | Não | Se deve incluir contas membro da organização. |
-| `filters` | Array | Não | Filtros para exportar um subconjunto de recomendações. |
-| `fieldsToExport` | Array | Não | Campos específicos a serem exportados. |
-| `recommendationPreferences` | Object | Não | Preferências de recomendação. |
-
-#### Exemplo de Requisição
+### Exemplo de Requisição
 
 ```json
 {
-  "s3DestinationConfig": {
-    "bucket": "my-compute-optimizer-exports",
-    "keyPrefix": "ec2-recommendations/"
-  },
-  "fileFormat": "Csv",
-  "includeMemberAccounts": true,
-  "fieldsToExport": [
-    "AccountId",
-    "InstanceArn",
-    "InstanceName",
-    "Finding",
-    "CurrentInstanceType",
-    "RecommendationOptionsInstanceType",
-    "RecommendationOptionsProjectedUtilizationMetricsCpuMaximum",
-    "EstimatedMonthlySavingsAmount"
+  "filters": [
+    {
+      "name": "Finding",
+      "value": "NotOptimized"
+    }
   ]
 }
 ```
 
 ---
 
-### 6. GetEnrollmentStatus
+## 3. GetEBSVolumeRecommendations
 
-Verifica se a conta está inscrita no Compute Optimizer e se a coleta de dados está ativa.
+Retorna recomendações de otimização para volumes Amazon EBS.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `volumeArns` | Array de Strings | Não | ARNs de volumes EBS específicos. |
+| `filters` | Array de Objetos | Não | Filtra as recomendações. `Finding` (`Optimized`, `NotOptimized`). |
+| `accountIds` | Array de Strings | Não | IDs de contas membro. |
+| `maxResults` | Integer | Não | Número máximo de resultados. |
+| `nextToken` | String | Não | Token para paginação. |
+
+### Exemplo de Requisição (Volumes não otimizados)
+
+```json
+{
+  "filters": [
+    {
+      "name": "Finding",
+      "value": "NotOptimized"
+    }
+  ]
+}
+```
+
+---
+
+## 4. GetLambdaFunctionRecommendations
+
+Retorna recomendações de otimização de memória para funções AWS Lambda.
+
+### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `functionArns` | Array de Strings | Não | ARNs de funções Lambda específicas. |
+| `filters` | Array de Objetos | Não | Filtra as recomendações. `Finding` (`Optimized`, `NotOptimized`, `Unavailable`). |
+| `accountIds` | Array de Strings | Não | IDs de contas membro. |
+| `maxResults` | Integer | Não | Número máximo de resultados. |
+| `nextToken` | String | Não | Token para paginação. |
+
+### Exemplo de Requisição
+
+```json
+{
+  "filters": [
+    {
+      "name": "Finding",
+      "value": "NotOptimized"
+    }
+  ]
+}
+```
+
+---
+
+## 5. GetECSServiceRecommendations
+
+Retorna recomendações de otimização de CPU e memória para serviços Amazon ECS.
+
+### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `serviceArns` | Array de Strings | Não | ARNs de serviços ECS específicos. |
+| `filters` | Array de Objetos | Não | Filtra as recomendações. `Finding` (`Optimized`, `Underprovisioned`, `Overprovisioned`). |
+| `accountIds` | Array de Strings | Não | IDs de contas membro. |
+| `maxResults` | Integer | Não | Número máximo de resultados. |
+| `nextToken` | String | Não | Token para paginação. |
+
+### Exemplo de Requisição (Serviços ECS superprovisionados)
+
+```json
+{
+  "filters": [
+    {
+      "name": "Finding",
+      "value": "Overprovisioned"
+    }
+  ]
+}
+```
+
+---
+
+## 6. GetEnrollmentStatus
+
+Verifica se o Compute Optimizer está ativado para a conta. O serviço precisa estar ativo para gerar recomendações.
+
+### Parâmetros de Entrada
 
 Nenhum.
 
-#### Exemplo de Requisição
+### Exemplo de Requisição
+
+```json
+{}
+```
+
+---
+
+## 7. UpdateEnrollmentStatus
+
+Ativa ou desativa o Compute Optimizer.
+
+### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `status` | String | **Sim** | O novo status.<br>**Valores**: `Active` (Ativo), `Inactive` (Inativo), `Pending` (Pendente).<br>**Uso**: Use `Active` para começar a coletar métricas e gerar recomendações. |
+| `includeMemberAccounts` | Boolean | Não | Se `true` e você for a conta de gerenciamento, o status será aplicado a todas as contas membro. |
+
+### Exemplo de Requisição (Ativar para toda a organização)
+
+```json
+{
+  "status": "Active",
+  "includeMemberAccounts": true
+}
+```
+
+---
+
+## 8. GetRecommendationSummaries
+
+Fornece um resumo agregado do número de recursos analisados e o potencial de economia, agrupado por tipo de recurso e status da recomendação.
+
+### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `accountIds` | Array de Strings | Não | IDs de contas membro para incluir no resumo. |
+| `maxResults` | Integer | Não | Número máximo de resultados. |
+| `nextToken` | String | Não | Token para paginação. |
+
+### Exemplo de Requisição
 
 ```json
 {}

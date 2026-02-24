@@ -1,144 +1,128 @@
-# Guia Detalhado: AWS Savings Plans API
+# Guia Devastadoramente Detalhado: AWS Savings Plans API
 
 ## Visão Geral
 
-A API de Savings Plans permite gerenciar e consultar informações sobre Savings Plans, que oferecem descontos significativos em troca de compromisso de uso por 1 ou 3 anos.
+Savings Plans são um modelo de preço flexível que oferece descontos significativos (semelhantes a RIs) em troca de um compromisso de uso de computação (medido em USD/hora) por um período de 1 ou 3 anos. A API do Savings Plans permite que você gerencie seus planos, descreva as ofertas disponíveis e analise seu inventário de planos.
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://savingsplans.amazonaws.com` |
+| **Endpoint** | `https://savingsplans.{region}.amazonaws.com` |
 | **Protocolo** | REST (JSON) |
 | **Service Name (IAM)** | `savingsplans` |
 
 ---
 
-## Ações da API
+## 1. DescribeSavingsPlansOfferings
 
-### 1. DescribeSavingsPlans
+Descreve as ofertas de Savings Plans disponíveis para compra. Use esta ação para explorar as opções antes de se comprometer.
 
-Lista todos os Savings Plans da conta com detalhes.
+### Parâmetros de Entrada
 
-**Método HTTP**: POST  
-**Path**: `/DescribeSavingsPlans`
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `savingsPlanArns` | Array | Não | ARNs dos SPs a serem descritos. |
-| `savingsPlanIds` | Array | Não | IDs dos SPs a serem descritos. |
-| `states` | Array | Não | Filtro por estado: `payment-pending`, `payment-failed`, `active`, `retired`, `queued`, `queued-deleted`, `returned`. |
-| `filters` | Array | Não | Filtros adicionais com `name` e `values`. |
-| `maxResults` | Integer | Não | Número máximo de resultados (1-1000). |
+| `offeringIds` | Array de Strings | Não | Uma lista de IDs de ofertas específicas, se você já sabe quais quer ver. |
+| `paymentOptions` | Array de Strings | Não | Filtra por opção de pagamento: `No Upfront` (sem pagamento adiantado), `Partial Upfront` (parcialmente adiantado), `All Upfront` (totalmente adiantado). |
+| `planTypes` | Array de Strings | Não | Filtra por tipo de plano: `Compute` (flexível entre EC2, Fargate, Lambda), `EC2Instance` (preso a uma família de instância EC2 em uma região), `SageMaker`. |
+| `products` | Array de Strings | Não | Filtra por produto coberto pelo plano: `EC2`, `Fargate`, `Lambda`, `SageMaker`. |
+| `durations` | Array de Inteiros | Não | Filtra pela duração do termo em segundos. Use `31536000` para 1 ano e `94608000` para 3 anos. |
+| `currencies` | Array de Strings | Não | Filtra por moeda: `USD`, `CNY`. |
+| `filters` | Array de Objetos | Não | Filtros mais genéricos com `name` (ex: `region`, `instanceFamily`) e `values`. Útil para encontrar ofertas para uma família de instância específica. |
+| `maxResults` | Integer | Não | Número máximo de resultados por página. |
 | `nextToken` | String | Não | Token para paginação. |
 
-#### Exemplo de Requisição
-
-```json
-{
-  "states": ["active"],
-  "maxResults": 100
-}
-```
-
----
-
-### 2. DescribeSavingsPlansOfferings
-
-Lista as ofertas de Savings Plans disponíveis para compra.
-
-**Método HTTP**: POST  
-**Path**: `/DescribeSavingsPlansOfferings`
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `offeringIds` | Array | Não | IDs de ofertas específicas. |
-| `paymentOptions` | Array | Não | `All Upfront`, `Partial Upfront`, `No Upfront`. |
-| `productType` | String | Não | `EC2`, `Fargate`, `Lambda`, `SageMaker`. |
-| `planTypes` | Array | Não | `Compute`, `EC2Instance`, `SageMaker`. |
-| `durations` | Array | Não | Duração em segundos (ex: `31536000` para 1 ano, `94608000` para 3 anos). |
-| `currencies` | Array | Não | `USD`, `CNY`. |
-| `descriptions` | Array | Não | Filtro por descrição. |
-| `serviceCodes` | Array | Não | Códigos de serviço. |
-| `usageTypes` | Array | Não | Tipos de uso. |
-| `operations` | Array | Não | Operações. |
-| `filters` | Array | Não | Filtros adicionais. |
-| `maxResults` | Integer | Não | Número máximo de resultados. |
-| `nextToken` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
+### Exemplo de Requisição (Ofertas de Compute SP de 1 ano, sem pagamento adiantado)
 
 ```json
 {
   "planTypes": ["Compute"],
   "paymentOptions": ["No Upfront"],
-  "durations": [31536000],
-  "productType": "EC2",
-  "maxResults": 50
+  "durations": [31536000]
 }
 ```
 
 ---
 
-### 3. DescribeSavingsPlansOfferingRates
+## 2. DescribeSavingsPlans
 
-Lista as taxas detalhadas de uma oferta de Savings Plan.
+Descreve os Savings Plans que você já possui, incluindo seu status, compromisso e período de validade.
 
-**Método HTTP**: POST  
-**Path**: `/DescribeSavingsPlansOfferingRates`
+### Parâmetros de Entrada
 
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `savingsPlanOfferingIds` | Array | Não | IDs de ofertas. |
-| `savingsPlanPaymentOptions` | Array | Não | Opções de pagamento. |
-| `savingsPlanTypes` | Array | Não | Tipos de SP. |
-| `products` | Array | Não | Produtos. |
-| `serviceCodes` | Array | Não | Códigos de serviço. |
-| `usageTypes` | Array | Não | Tipos de uso. |
-| `operations` | Array | Não | Operações. |
-| `filters` | Array | Não | Filtros adicionais. |
+| `savingsPlanArns` | Array de Strings | Não | ARNs de Savings Plans específicos que você deseja descrever. |
+| `savingsPlanIds` | Array de Strings | Não | IDs de Savings Plans específicos. |
+| `states` | Array de Strings | Não | Filtra por estado do plano: `payment-pending`, `payment-failed`, `active`, `retired`. Use `active` para ver seus compromissos atuais. |
+| `filters` | Array de Objetos | Não | Filtros mais genéricos com `name` (ex: `region`, `ec2-instance-family`) e `values`. |
 | `maxResults` | Integer | Não | Número máximo de resultados. |
 | `nextToken` | String | Não | Token para paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Listar todos os planos ativos)
 
 ```json
 {
-  "savingsPlanTypes": ["Compute"],
-  "products": ["EC2"],
-  "maxResults": 100
+  "states": ["active"]
 }
 ```
 
 ---
 
-### 4. CreateSavingsPlan
+## 3. DescribeSavingsPlanRates
 
-Compra um novo Savings Plan.
+Descreve as taxas (preços com desconto) de um Savings Plan específico para diferentes produtos. Isso permite que você veja exatamente qual o preço por hora de uma instância `t3.micro`, por exemplo, sob o seu plano.
 
-**Método HTTP**: POST  
-**Path**: `/CreateSavingsPlan`
+### Parâmetros de Entrada
 
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `savingsPlanOfferingId` | String | Sim | ID da oferta a ser comprada. |
-| `commitment` | String | Sim | Valor do compromisso por hora em USD (ex: `"10.0"`). |
-| `upfrontPaymentAmount` | String | Não | Valor do pagamento antecipado. |
-| `purchaseTime` | Timestamp | Não | Data/hora para compra futura (até 7 dias). |
-| `clientToken` | String | Não | Token de idempotência. |
-| `tags` | Object | Não | Tags a serem associadas. |
+| `savingsPlanId` | String | **Sim** | O ID do Savings Plan cujas taxas você deseja ver. |
+| `filters` | Array de Objetos | Não | Filtra as taxas por `region`, `instanceType`, `productDescription`, etc. Essencial para encontrar a taxa de um produto específico. |
+| `maxResults` | Integer | Não | Número máximo de resultados. |
+| `nextToken` | String | Não | Token para paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Taxas de um SP para instâncias t3 na Virgínia)
 
 ```json
 {
-  "savingsPlanOfferingId": "offering-abc123",
-  "commitment": "10.0"
+  "savingsPlanId": "sp-12345abcdef",
+  "filters": [
+    {
+      "name": "region",
+      "values": ["us-east-1"]
+    },
+    {
+      "name": "instanceType",
+      "values": ["t3.micro", "t3.small"]
+    }
+  ]
+}
+```
+
+---
+
+## 4. CreateSavingsPlan
+
+Cria (compra) um novo Savings Plan. **Atenção: Esta é uma transação financeira que gera um compromisso de pagamento.**
+
+### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `savingsPlanOfferingId` | String | **Sim** | O ID da oferta do Savings Plan que você deseja comprar. Obtido de `DescribeSavingsPlansOfferings`. |
+| `commitment` | String | **Sim** | O valor do compromisso horário em USD (ex: `"0.50"` para 50 centavos por hora). Este é o valor que você se compromete a gastar por hora durante o termo do plano. |
+| `upfrontPaymentAmount` | String | Não | O valor do pagamento adiantado. Obrigatório se a oferta for `Partial Upfront` ou `All Upfront`. |
+| `clientToken` | String | Não | Um token de idempotência para evitar compras duplicadas acidentais. A API gerará um se você não fornecer. |
+| `tags` | Objeto | Não | Tags para associar ao Savings Plan, úteis para alocação de custos interna. |
+
+### Exemplo de Requisição (Comprar um SP com compromisso de $1.25/hora)
+
+```json
+{
+  "savingsPlanOfferingId": "offering-12345abcdef",
+  "commitment": "1.25",
+  "tags": {
+    "Owner": "FinOpsTeam",
+    "Project": "Global-Compute-SP"
+  }
 }
 ```

@@ -1,114 +1,124 @@
-# Guia Detalhado: Amazon RDS API (FinOps)
+# Guia Devastadoramente Detalhado: Amazon RDS API (para FinOps)
 
 ## Visão Geral
 
-O RDS é outro serviço com custos significativos. Monitorar instâncias de banco de dados, clusters Aurora e snapshots é essencial para right-sizing e otimização.
+Bancos de dados são frequentemente uma parcela significativa dos custos na nuvem. A API do RDS é vital para inventariar instâncias de banco de dados, clusters, snapshots e RIs, permitindo a identificação de recursos subutilizados, desalocados ou superdimensionados.
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://rds.{region}.amazonaws.com/` |
-| **Protocolo** | Query API (form-urlencoded) |
+| **Endpoint** | `https://rds.{region}.amazonaws.com` |
+| **Protocolo** | Query (GET/POST) |
 | **Service Name (IAM)** | `rds` |
-| **Versão da API** | `2014-10-31` |
 
 ---
 
-## Ações da API
+## 1. DescribeDBInstances
 
-### 1. DescribeDBInstances
+Retorna informações sobre instâncias de banco de dados provisionadas.
 
-Lista todas as instâncias RDS com detalhes completos.
+### Parâmetros de Entrada
 
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `DBInstanceIdentifier` | String | Não | Identificador de uma instância específica. |
-| `Filters` | Array | Não | Filtros por `db-cluster-id`, `db-instance-id`, `dbi-resource-id`, `domain`, `engine`. |
-| `MaxRecords` | Integer | Não | Número máximo de resultados (20-100). |
-| `Marker` | String | Não | Token para paginação. |
+| `DBInstanceIdentifier` | String | Não | O identificador de uma instância de banco de dados específica. Se omitido, retorna todas as instâncias. |
+| `Filters` | Array de Objetos | Não | Filtra os resultados. Cada objeto tem `Name` e `Values`.<br>**Nomes de Filtro Úteis**: `db-instance-id`, `db-instance-class`, `engine`, `tag:<key>`.<br>**Uso**: Permite focar em um subconjunto de instâncias, como todas as instâncias MySQL ou todas as instâncias de um projeto específico via tags. |
+| `MaxRecords` | Integer | Não | O número máximo de registros a serem retornados em uma única chamada. |
+| `Marker` | String | Não | Um token de paginação fornecido em uma resposta anterior para obter a próxima página de resultados. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Listar todas as instâncias de banco de dados MySQL)
 
-```
-Action=DescribeDBInstances
-&Version=2014-10-31
-&MaxRecords=100
-```
-
----
-
-### 2. DescribeDBClusters
-
-Lista clusters Aurora/RDS com detalhes.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `DBClusterIdentifier` | String | Não | Identificador de um cluster específico. |
-| `Filters` | Array | Não | Filtros por `db-cluster-id`, `db-cluster-resource-id`, `domain`, `engine`. |
-| `MaxRecords` | Integer | Não | Número máximo de resultados. |
-| `Marker` | String | Não | Token para paginação. |
-| `IncludeShared` | Boolean | Não | Incluir clusters compartilhados. |
-
-#### Exemplo de Requisição
-
-```
-Action=DescribeDBClusters
-&Version=2014-10-31
+```json
+{
+  "Filters": [
+    {
+      "Name": "engine",
+      "Values": ["mysql"]
+    }
+  ]
+}
 ```
 
 ---
 
-### 3. DescribeReservedDBInstances
+## 2. DescribeDBClusters
 
-Lista as Reserved DB Instances ativas.
+Retorna informações sobre clusters de banco de dados provisionados (usado para Aurora, Multi-AZ, etc.).
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `ReservedDBInstanceId` | String | Não | ID de uma RI específica. |
-| `DBInstanceClass` | String | Não | Filtro por classe de instância. |
-| `Duration` | String | Não | Duração em segundos. |
-| `ProductDescription` | String | Não | Descrição do produto. |
-| `OfferingType` | String | Não | Tipo de oferta. |
-| `MultiAZ` | Boolean | Não | Filtro por Multi-AZ. |
-| `LeaseId` | String | Não | ID do lease. |
-| `MaxRecords` | Integer | Não | Número máximo de resultados. |
-| `Marker` | String | Não | Token para paginação. |
+| `DBClusterIdentifier` | String | Não | O identificador de um cluster específico. |
+| `Filters` | Array de Objetos | Não | Filtra os resultados. `Name` e `Values`.<br>**Nomes de Filtro Úteis**: `db-cluster-id`, `engine` (ex: `aurora-mysql`), `status` (`available`, `creating`, `stopped`).<br>**Uso**: Filtrar por `status: stopped` pode ajudar a encontrar clusters parados que ainda podem estar incorrendo em custos de armazenamento. |
+| `MaxRecords` | Integer | Não | Número máximo de registros. |
+| `Marker` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Listar todos os clusters Aurora MySQL parados)
 
-```
-Action=DescribeReservedDBInstances
-&Version=2014-10-31
+```json
+{
+  "Filters": [
+    {
+      "Name": "engine",
+      "Values": ["aurora-mysql"]
+    },
+    {
+      "Name": "status",
+      "Values": ["stopped"]
+    }
+  ]
+}
 ```
 
 ---
 
-### 4. DescribeDBSnapshots
+## 3. DescribeDBSnapshots
 
-Lista snapshots de banco de dados.
+Retorna informações sobre snapshots de banco de dados. Snapshots manuais, em particular, podem se acumular e gerar custos se não forem gerenciados.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `DBInstanceIdentifier` | String | Não | Filtro por instância. |
-| `DBSnapshotIdentifier` | String | Não | ID de um snapshot específico. |
-| `SnapshotType` | String | Não | `automated`, `manual`, `shared`, `public`, `awsbackup`. |
-| `Filters` | Array | Não | Filtros adicionais. |
-| `MaxRecords` | Integer | Não | Número máximo de resultados. |
-| `Marker` | String | Não | Token para paginação. |
-| `IncludeShared` | Boolean | Não | Incluir snapshots compartilhados. |
-| `IncludePublic` | Boolean | Não | Incluir snapshots públicos. |
+| `DBInstanceIdentifier` | String | Não | Filtra snapshots de uma instância específica. |
+| `DBSnapshotIdentifier` | String | Não | O identificador de um snapshot específico. |
+| `SnapshotType` | String | Não | O tipo de snapshot.<br>**Valores**: `manual`, `automated`, `shared`, `public`.<br>**Uso**: Filtrar por `manual` é crucial para encontrar snapshots que não são gerenciados automaticamente pelo RDS e que podem ser candidatos à exclusão se forem antigos. |
+| `Filters` | Array de Objetos | Não | Filtros adicionais, como por `engine` ou `status`. |
+| `MaxRecords` | Integer | Não | Número máximo de registros. |
+| `Marker` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Listar todos os snapshots manuais)
 
+```json
+{
+  "SnapshotType": "manual"
+}
 ```
-Action=DescribeDBSnapshots
-&Version=2014-10-31
-&SnapshotType=manual
+
+---
+
+## 4. DescribeReservedDBInstances
+
+Retorna informações sobre as Reserved Instances (RIs) de banco de dados que você possui.
+
+### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `ReservedDBInstanceId` | String | Não | O ID de uma RI específica. |
+| `Filters` | Array de Objetos | Não | Filtra as RIs.<br>**Nomes de Filtro Úteis**: `state` (`payment-pending`, `active`, `payment-failed`, `retired`), `db-instance-class`, `duration` (em segundos, ex: `31536000` para 1 ano).<br>**Uso**: Use `state: active` para inventariar seus compromissos de RI de banco de dados atuais. |
+| `MaxRecords` | Integer | Não | Número máximo de registros. |
+| `Marker` | String | Não | Token de paginação. |
+
+### Exemplo de Requisição (Listar todas as RIs de RDS ativas)
+
+```json
+{
+  "Filters": [
+    {
+      "Name": "state",
+      "Values": ["active"]
+    }
+  ]
+}
 ```

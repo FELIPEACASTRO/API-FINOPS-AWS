@@ -1,8 +1,8 @@
-# Guia Detalhado: AWS Budgets API
+# Guia Devastadoramente Detalhado: AWS Budgets API
 
 ## Visão Geral
 
-O AWS Budgets permite criar orçamentos para monitorar custos e uso, com notificações automáticas e ações quando limites são atingidos. É uma ferramenta essencial para o controle proativo de custos.
+A API do AWS Budgets é a principal ferramenta para controle de custos e governança financeira. Ela permite que você defina orçamentos para seus custos e uso, e crie alertas que notificam quando seus gastos (ou a previsão de gastos) excedem um limiar definido. É uma ferramenta essencial para evitar surpresas na fatura e manter a responsabilidade financeira entre as equipes.
 
 | Atributo | Valor |
 | :--- | :--- |
@@ -14,70 +14,66 @@ O AWS Budgets permite criar orçamentos para monitorar custos e uso, com notific
 
 ---
 
-## Ações da API
+## 1. CreateBudget
 
-### 1. CreateBudget
+Cria um novo orçamento para monitorar custos ou uso.
 
-Cria um novo orçamento com limites, filtros e notificações.
+### Parâmetros de Entrada
 
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AccountId` | String | Sim | O ID da conta onde o orçamento será criado. |
-| `Budget` | Object | Sim | Objeto complexo que define o orçamento. |
-| `NotificationsWithSubscribers` | Array | Não | Lista de notificações e seus assinantes. |
+| `AccountId` | String | **Sim** | O ID da conta de 12 dígitos à qual o orçamento se aplica. |
+| `Budget` | Objeto | **Sim** | O objeto principal que define o orçamento. Veja a tabela detalhada abaixo. |
+| `NotificationsWithSubscribers` | Array de Objetos | Não | Uma lista de alertas a serem configurados para este orçamento. Essencial para a proatividade. Veja a tabela detalhada abaixo. |
 
-#### Objeto `Budget`
+#### O Objeto `Budget`
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Chave | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `BudgetName` | String | Sim | Nome único para o orçamento. |
-| `BudgetType` | String | Sim | `COST`, `USAGE`, `RI_UTILIZATION`, `RI_COVERAGE`, `SAVINGS_PLANS_UTILIZATION`, `SAVINGS_PLANS_COVERAGE`. |
-| `TimeUnit` | String | Sim | `DAILY`, `MONTHLY`, `QUARTERLY`, `ANNUALLY`. |
-| `BudgetLimit` | Object | Sim | Objeto com `Amount` e `Unit`. |
-| `CostFilters` | Object | Não | Filtros por dimensão (serviço, conta, tag, etc.). |
-| `CostTypes` | Object | Não | Incluir/excluir impostos, créditos, reembolsos, etc. |
-| `TimePeriod` | Object | Não | Período de início e fim para orçamentos fixos. |
+| `BudgetName` | String | **Sim** | O nome do seu orçamento. Deve ser único na sua conta. Ex: "Orçamento-Mensal-Total", "Orçamento-Projeto-X-Dev". |
+| `BudgetType` | String | **Sim** | O tipo de orçamento. <br>**Valores**: `COST` (para custos em USD), `USAGE` (para quantidade de uso, ex: horas de EC2), `RI_UTILIZATION` (para utilização de RIs), `RI_COVERAGE` (para cobertura de RIs), `SAVINGS_PLANS_UTILIZATION`, `SAVINGS_PLANS_COVERAGE`.<br>**Uso**: `COST` é o mais comum. Os outros são para casos de uso avançados de otimização. |
+| `TimeUnit` | String | **Sim** | A periodicidade do orçamento.<br>**Valores**: `DAILY`, `MONTHLY`, `QUARTERLY`, `ANNUALLY`.<br>**Uso**: `MONTHLY` é o mais comum para orçamentos de custo. |
+| `BudgetLimit` | Objeto | **Sim** | O valor do orçamento. Contém `Amount` (String) e `Unit` (String, ex: "USD"). |
+| `CostFilters` | Objeto | Não | Permite que o orçamento se aplique a um subconjunto dos seus custos. A estrutura é `{"CHAVE": ["valor1", "valor2"]}`. <br>**Chaves Comuns**: `Service`, `LinkedAccount`, `TagKeyValue` (formato: `"TagKey$TagValue"`), `Region`.<br>**Uso**: Fundamental para criar orçamentos para projetos, times ou contas específicas. |
+| `CostTypes` | Objeto | Não | Define quais tipos de custo incluir no cálculo do orçamento. <br>**Chaves (Boolean)**: `IncludeTax`, `IncludeSubscription`, `UseBlended`, `IncludeRefund`, `IncludeCredit`, `UseAmortized`.<br>**Uso**: Por padrão, a maioria é `true`. `UseAmortized: true` é importante para orçamentos que precisam refletir o custo real após a distribuição de RIs/SPs. |
 
-#### Exemplo de Requisição
+#### O Objeto `NotificationsWithSubscribers`
+
+| Chave | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `Notification` | Objeto | **Sim** | Define a regra do alerta. Contém:<br>- `NotificationType` (String, **Sim**): `ACTUAL` (baseado no custo real acumulado) ou `FORECASTED` (baseado na previsão de custo para o final do período).<br>- `ComparisonOperator` (String, **Sim**): `GREATER_THAN`, `LESS_THAN`, `EQUAL_TO`.<br>- `Threshold` (Double, **Sim**): O valor do limiar para disparar o alerta.<br>- `ThresholdType` (String, Não): `PERCENTAGE` (padrão) ou `ABSOLUTE_VALUE`. |
+| `Subscribers` | Array de Objetos | **Sim** | Lista de destinatários. Cada objeto tem `SubscriptionType` (`EMAIL` ou `SNS`) e `Address` (o e-mail ou ARN do tópico SNS). |
+
+### Exemplo de Requisição (Orçamento de Custo Mensal com Alerta de Previsão)
 
 ```json
 {
   "AccountId": "123456789012",
   "Budget": {
-    "BudgetName": "Monthly-EC2-Budget",
+    "BudgetName": "Orcamento-Mensal-Total-5000",
     "BudgetType": "COST",
     "TimeUnit": "MONTHLY",
     "BudgetLimit": {
-      "Amount": "1000.0",
+      "Amount": "5000.0",
       "Unit": "USD"
-    },
-    "CostFilters": {
-      "Service": ["Amazon Elastic Compute Cloud - Compute"]
-    },
-    "CostTypes": {
-      "IncludeTax": true,
-      "IncludeSubscription": true,
-      "UseBlended": false
     }
   },
   "NotificationsWithSubscribers": [
     {
       "Notification": {
-        "NotificationType": "ACTUAL",
+        "NotificationType": "FORECASTED",
         "ComparisonOperator": "GREATER_THAN",
-        "Threshold": 80,
+        "Threshold": 100,
         "ThresholdType": "PERCENTAGE"
       },
       "Subscribers": [
         {
           "SubscriptionType": "EMAIL",
-          "Address": "finops@example.com"
+          "Address": "lider.equipe@exemplo.com"
         },
         {
           "SubscriptionType": "SNS",
-          "Address": "arn:aws:sns:us-east-1:123456789012:MyTopic"
+          "Address": "arn:aws:sns:us-east-1:123456789012:AlarmesFinOps"
         }
       ]
     }
@@ -87,19 +83,19 @@ Cria um novo orçamento com limites, filtros e notificações.
 
 ---
 
-### 2. DescribeBudgets
+## 2. DescribeBudgets
 
-Lista os orçamentos de uma conta.
+Lista os orçamentos que foram criados na conta.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AccountId` | String | Sim | O ID da conta. |
-| `MaxResults` | Integer | Não | Número máximo de resultados por página. |
-| `NextToken` | String | Não | Token para paginação. |
+| `AccountId` | String | **Sim** | O ID da conta de 12 dígitos. |
+| `MaxResults` | Integer | Não | O número máximo de orçamentos a serem retornados por página. |
+| `NextToken` | String | Não | Token para paginação, obtido de uma resposta anterior. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição
 
 ```json
 {
@@ -110,101 +106,74 @@ Lista os orçamentos de uma conta.
 
 ---
 
-### 3. DescribeBudgetPerformanceHistory
+## 3. DescribeBudgetPerformanceHistory
 
-Retorna o histórico de performance de um orçamento, comparando o custo/uso real com o limite orçado.
+Retorna o histórico de performance de um orçamento, mostrando o custo real e o valor orçado para períodos passados. Útil para análises de variação (orçado vs. realizado).
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AccountId` | String | Sim | O ID da conta. |
-| `BudgetName` | String | Sim | O nome do orçamento. |
-| `TimePeriod` | Object | Não | Período de início e fim para o histórico. Se não especificado, retorna os últimos 12 meses. |
-| `MaxResults` | Integer | Não | Número máximo de resultados por página. |
+| `AccountId` | String | **Sim** | O ID da conta de 12 dígitos. |
+| `BudgetName` | String | **Sim** | O nome exato do orçamento que você quer analisar. |
+| `TimePeriod` | Objeto | Não | Permite especificar um período (`Start` e `End`) para o histórico. Se não fornecido, retorna os últimos 5 períodos do orçamento. |
+| `MaxResults` | Integer | Não | Número máximo de períodos históricos a retornar. |
 | `NextToken` | String | Não | Token para paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição
 
 ```json
 {
   "AccountId": "123456789012",
-  "BudgetName": "Monthly-EC2-Budget"
+  "BudgetName": "Orcamento-Mensal-Total-5000"
 }
 ```
 
 ---
 
-### 4. CreateBudgetAction
+## 4. CreateBudgetAction
 
-Cria uma ação automática a ser executada quando um orçamento atinge um determinado limite. A ação pode ser aplicar uma política IAM, desanexar uma política ou parar instâncias EC2/RDS.
+Cria uma ação automatizada a ser executada quando um orçamento atinge um determinado limiar. Isso transforma o Budgets de uma ferramenta de monitoramento para uma ferramenta de controle ativo.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AccountId` | String | Sim | O ID da conta. |
-| `BudgetName` | String | Sim | O nome do orçamento ao qual a ação está vinculada. |
-| `NotificationType` | String | Sim | `ACTUAL` ou `FORECASTED`. |
-| `ActionType` | String | Sim | `APPLY_IAM_POLICY`, `APPLY_SCP_POLICY`, `RUN_SSM_DOCUMENTS`. |
-| `ActionThreshold` | Object | Sim | Objeto com `Value` e `Type` (`PERCENTAGE` ou `ABSOLUTE_VALUE`). |
-| `Definition` | Object | Sim | Define a ação (ex: qual política aplicar, quais instâncias parar). |
-| `ExecutionRoleArn` | String | Sim | ARN do perfil que o Budgets usará para executar a ação. |
-| `ApprovalModel` | String | Sim | `AUTOMATIC` ou `MANUAL`. |
-| `Subscribers` | Array | Sim | Lista de contatos a serem notificados sobre a execução da ação. |
+| `AccountId` | String | **Sim** | ID da conta. |
+| `BudgetName` | String | **Sim** | Nome do orçamento ao qual a ação está associada. |
+| `NotificationType` | String | **Sim** | `ACTUAL` ou `FORECASTED`. O gatilho da ação. |
+| `ActionType` | String | **Sim** | O tipo de ação a ser executada. <br>**Valores**: `APPLY_IAM_POLICY`, `APPLY_SCP_POLICY`, `RUN_SSM_DOCUMENTS`.<br>**Uso**: `APPLY_IAM_POLICY` é comum para restringir permissões de criação de recursos (ex: uma política de "somente leitura") quando o orçamento estoura. `RUN_SSM_DOCUMENTS` pode ser usado para parar instâncias EC2/RDS. |
+| `ActionThreshold` | Objeto | **Sim** | O limiar que dispara a ação. Contém `Value` (Double) e `Type` (`PERCENTAGE` ou `ABSOLUTE_VALUE`). |
+| `Definition` | Objeto | **Sim** | Define os detalhes da ação. Contém `IamActionDefinition` (com `PolicyArn` e `Roles`/`Users`/`Groups`), `ScpActionDefinition` (com `PolicyId` e `TargetIds`), ou `SsmActionDefinition` (com `ActionSubType`, `Region` e `InstanceIds`). |
+| `ExecutionRoleArn` | String | **Sim** | O ARN da role IAM que o serviço Budgets usará para executar a ação. Esta role precisa ter permissão para realizar a ação definida. |
+| `ApprovalModel` | String | **Sim** | `AUTOMATIC` ou `MANUAL`. Define se a ação requer aprovação manual antes de ser executada. |
+| `Subscribers` | Array de Objetos | **Sim** | Lista de contatos para notificar sobre a execução da ação. |
 
-#### Exemplo de Requisição (Parar Instâncias EC2)
+### Exemplo de Requisição (Aplicar política de "ReadOnly" automaticamente)
 
 ```json
 {
   "AccountId": "123456789012",
-  "BudgetName": "Daily-Dev-Budget",
+  "BudgetName": "Orcamento-Mensal-Total-5000",
   "NotificationType": "ACTUAL",
-  "ActionType": "RUN_SSM_DOCUMENTS",
+  "ActionType": "APPLY_IAM_POLICY",
   "ActionThreshold": {
-    "Value": 100,
+    "Value": 110,
     "Type": "PERCENTAGE"
   },
   "Definition": {
-    "SsmActionDefinition": {
-      "ActionSubType": "STOP_EC2_INSTANCES",
-      "Region": "us-east-1",
-      "InstanceIds": [
-        "i-0123456789abcdef0"
-      ]
+    "IamActionDefinition": {
+      "PolicyArn": "arn:aws:iam::123456789012:policy/FinOps-ReadOnly-Policy",
+      "Groups": ["Developers"]
     }
   },
-  "ExecutionRoleArn": "arn:aws:iam::123456789012:role/MyBudgetActionRole",
+  "ExecutionRoleArn": "arn:aws:iam::123456789012:role/BudgetActionRole",
   "ApprovalModel": "AUTOMATIC",
   "Subscribers": [
     {
       "SubscriptionType": "EMAIL",
-      "Address": "devops@example.com"
+      "Address": "admin.finops@exemplo.com"
     }
   ]
-}
-```
-
----
-
-### 5. DescribeBudgetActionsForBudget
-
-Lista as ações configuradas para um orçamento específico.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `AccountId` | String | Sim | O ID da conta. |
-| `BudgetName` | String | Sim | O nome do orçamento. |
-| `MaxResults` | Integer | Não | Número máximo de resultados por página. |
-| `NextToken` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "AccountId": "123456789012",
-  "BudgetName": "Daily-Dev-Budget"
 }
 ```

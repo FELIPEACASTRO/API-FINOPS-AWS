@@ -1,8 +1,12 @@
-# Guia Detalhado: Lambda, S3, ECS e EKS APIs (FinOps)
+# Guia Devastadoramente Detalhado: Inventário de Lambda, S3, ECS e EKS
+
+## Visão Geral
+
+Este guia cobre as chamadas de API essenciais para inventariar recursos em serviços de computação serverless, contêineres e armazenamento, que são fundamentais para uma visão completa do seu ambiente na AWS.
 
 ---
 
-## 1. AWS Lambda API
+## AWS Lambda
 
 | Atributo | Valor |
 | :--- | :--- |
@@ -10,188 +14,123 @@
 | **Protocolo** | REST (JSON) |
 | **Service Name (IAM)** | `lambda` |
 
-### 1.1 ListFunctions
+### 1. ListFunctions
 
-Lista todas as funções Lambda.
+Retorna uma lista das suas funções Lambda, incluindo informações de configuração como tamanho da memória, runtime e última modificação.
 
-**Método HTTP**: GET  
-**Path**: `/2015-03-31/functions`
+#### Parâmetros de Entrada
 
-#### Parâmetros de Query String
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `MasterRegion` | String | Não | Região para listar funções replicadas. |
-| `FunctionVersion` | String | Não | `ALL` para incluir todas as versões. |
-| `Marker` | String | Não | Token para paginação. |
-| `MaxItems` | Integer | Não | Número máximo de resultados (1-10000). |
+| `MasterRegion` | String | Não | Para funções em regiões replicadas, especifica a região principal. Geralmente não é necessário para a maioria dos casos de uso de inventário. |
+| `FunctionVersion` | String | Não | Use `ALL` para retornar todas as versões de todas as funções. Se omitido, retorna apenas a versão `$LATEST` de cada função. Listar todas as versões pode ser útil para entender o histórico, mas aumenta o volume de dados. |
+| `Marker` | String | Não | Token de paginação para obter a próxima página de resultados se a lista for muito longa. |
+| `MaxItems` | Integer | Não | Número máximo de resultados por página. |
 
-### 1.2 GetFunction
+#### Exemplo de Requisição (Listar todas as funções)
 
-Retorna detalhes de uma função (memória, runtime, timeout, etc.).
-
-**Método HTTP**: GET  
-**Path**: `/2015-03-31/functions/{FunctionName}`
-
-#### Parâmetros de Path
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `FunctionName` | String | Sim | Nome ou ARN da função. |
-
-#### Parâmetros de Query String
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `Qualifier` | String | Não | Versão ou alias da função. |
-
-### 1.3 GetAccountSettings
-
-Retorna limites e configurações da conta para Lambda.
-
-**Método HTTP**: GET  
-**Path**: `/2016-08-19/account-settings`
-
-Nenhum parâmetro necessário.
+```
+GET /2015-03-31/functions/
+```
 
 ---
 
-## 2. Amazon S3 API
+## Amazon S3
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://s3.{region}.amazonaws.com/` |
+| **Endpoint** | `https://s3.{region}.amazonaws.com` |
 | **Protocolo** | REST (XML) |
 | **Service Name (IAM)** | `s3` |
 
-### 2.1 ListBuckets
+### 1. ListBuckets
 
-Lista todos os buckets S3 da conta.
+Retorna uma lista de todos os buckets S3 que pertencem à conta que fez a chamada.
 
-**Método HTTP**: GET  
-**Path**: `/`
+#### Parâmetros de Entrada
 
-#### Parâmetros de Query String
+Nenhum.
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+#### Exemplo de Requisição
+
+```
+GET / HTTP/1.1
+Host: s3.amazonaws.com
+```
+
+### 2. GetBucketLifecycleConfiguration
+
+Retorna a configuração do ciclo de vida de um bucket, que define como os objetos são transicionados para classes de armazenamento mais baratas (ex: Standard-IA, Glacier) ou expirados. Essencial para otimização de custos de armazenamento.
+
+#### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `bucket-region` | String | Não | Filtro por região. |
-| `continuation-token` | String | Não | Token para paginação. |
-| `max-buckets` | Integer | Não | Número máximo de resultados. |
-| `prefix` | String | Não | Filtro por prefixo de nome. |
+| `Bucket` | String | **Sim** | O nome do bucket cuja configuração de ciclo de vida você deseja inspecionar. |
+| `ExpectedBucketOwner` | String | Não | O ID da conta do proprietário esperado do bucket. Usado para validação em cenários de acesso complexos. |
 
-### 2.2 GetBucketTagging
+#### Exemplo de Requisição
 
-Retorna as tags de um bucket.
-
-**Método HTTP**: GET  
-**Path**: `/{BucketName}?tagging`
-
-#### Parâmetros de Path
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `BucketName` | String | Sim | Nome do bucket. |
+```
+GET /?lifecycle HTTP/1.1
+Host: <BucketName>.s3.<Region>.amazonaws.com
+```
 
 ---
 
-## 3. Amazon ECS API
+## Amazon ECS (Elastic Container Service)
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://ecs.{region}.amazonaws.com/` |
+| **Endpoint** | `https://ecs.{region}.amazonaws.com` |
 | **Protocolo** | JSON-RPC (POST) |
-| **Content-Type** | `application/x-amz-json-1.1` |
-| **X-Amz-Target Prefix** | `AmazonEC2ContainerServiceV20141113` |
 | **Service Name (IAM)** | `ecs` |
 
-### 3.1 ListClusters
+### 1. ListClusters / DescribeClusters
 
-Lista todos os clusters ECS.
+`ListClusters` retorna uma lista de ARNs de clusters. `DescribeClusters` usa esses ARNs para retornar informações detalhadas sobre cada cluster.
 
-#### Parâmetros de Entrada
+#### Parâmetros de `DescribeClusters`
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `maxResults` | Integer | Não | Número máximo de resultados (1-100). |
-| `nextToken` | String | Não | Token para paginação. |
+| `clusters` | Array de Strings | **Sim** | Uma lista de ARNs ou nomes curtos dos clusters a serem descritos. Você pode descrever até 100 clusters por chamada. |
+| `include` | Array de Strings | Não | Permite incluir informações adicionais. Para FinOps, `TAGS` é o mais importante para associar custos a projetos ou equipes. `STATISTICS` pode fornecer contagens de tarefas em execução. |
 
 #### Exemplo de Requisição
 
 ```json
 {
-  "maxResults": 100
+   "clusters": ["arn:aws:ecs:region:aws_account_id:cluster/MyCluster"],
+   "include": ["TAGS", "STATISTICS"]
 }
 ```
 
-### 3.2 DescribeClusters
+### 2. ListServices / DescribeServices
 
-Retorna detalhes de clusters.
+Similarmente, `ListServices` retorna os ARNs dos serviços dentro de um cluster, e `DescribeServices` fornece os detalhes.
 
-#### Parâmetros de Entrada
+#### Parâmetros de `DescribeServices`
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `clusters` | Array | Sim | Lista de nomes ou ARNs de clusters. |
-| `include` | Array | Não | Informações adicionais: `ATTACHMENTS`, `CONFIGURATIONS`, `SETTINGS`, `STATISTICS`, `TAGS`. |
+| `cluster` | String | Não | O nome ou ARN do cluster. Se omitido, o cluster `default` é usado. É uma boa prática sempre especificar o cluster. |
+| `services` | Array de Strings | **Sim** | A lista de ARNs ou nomes curtos dos serviços a serem descritos (até 10 por chamada). |
+| `include` | Array de Strings | Não | `TAGS` para obter as tags associadas ao serviço. |
 
 #### Exemplo de Requisição
 
 ```json
 {
-  "clusters": ["my-cluster"],
-  "include": ["STATISTICS", "TAGS"]
-}
-```
-
-### 3.3 ListServices
-
-Lista os serviços em um cluster.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `cluster` | String | Não | Nome ou ARN do cluster. |
-| `maxResults` | Integer | Não | Número máximo de resultados. |
-| `nextToken` | String | Não | Token para paginação. |
-| `launchType` | String | Não | `EC2`, `FARGATE`, `EXTERNAL`. |
-| `schedulingStrategy` | String | Não | `REPLICA` ou `DAEMON`. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "cluster": "my-cluster",
-  "launchType": "FARGATE"
-}
-```
-
-### 3.4 DescribeServices
-
-Retorna detalhes de serviços (desired/running count, CPU/memória).
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `services` | Array | Sim | Lista de nomes ou ARNs de serviços (máximo 10). |
-| `cluster` | String | Não | Nome ou ARN do cluster. |
-| `include` | Array | Não | `TAGS`. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "services": ["my-service"],
-  "cluster": "my-cluster",
-  "include": ["TAGS"]
+   "cluster": "MyCluster",
+   "services": ["MyService"],
+   "include": ["TAGS"]
 }
 ```
 
 ---
 
-## 4. Amazon EKS API
+## Amazon EKS (Elastic Kubernetes Service)
 
 | Atributo | Valor |
 | :--- | :--- |
@@ -199,59 +138,53 @@ Retorna detalhes de serviços (desired/running count, CPU/memória).
 | **Protocolo** | REST (JSON) |
 | **Service Name (IAM)** | `eks` |
 
-### 4.1 ListClusters
+### 1. ListClusters
 
-Lista todos os clusters EKS.
+Retorna uma lista dos nomes de todos os seus clusters EKS.
 
-**Método HTTP**: GET  
-**Path**: `/clusters`
+#### Parâmetros de Entrada
 
-#### Parâmetros de Query String
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `maxResults` | Integer | Não | Número máximo de resultados (1-100). |
-| `nextToken` | String | Não | Token para paginação. |
-| `include` | Array | Não | Incluir clusters de outros tipos. |
+| `maxResults` | Integer | Não | Número máximo de resultados por página. |
+| `nextToken` | String | Não | Token de paginação. |
+| `include` | Array de Strings | Não | Use `["all"]` para incluir clusters em qualquer estado (criando, deletando, etc.). Por padrão, retorna apenas clusters `ACTIVE`. |
 
-### 4.2 DescribeCluster
+#### Exemplo de Requisição
 
-Retorna detalhes de um cluster EKS.
+```
+GET /clusters
+```
 
-**Método HTTP**: GET  
-**Path**: `/clusters/{name}`
+### 2. DescribeCluster
 
-#### Parâmetros de Path
+Retorna informações detalhadas sobre um cluster EKS específico, incluindo sua versão do Kubernetes, status e configuração de rede.
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+#### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `name` | String | Sim | Nome do cluster. |
+| `name` | String | **Sim** | O nome do cluster que você deseja descrever. |
 
-### 4.3 ListNodegroups
+#### Exemplo de Requisição
 
-Lista os node groups de um cluster.
+```
+GET /clusters/MyCluster
+```
 
-**Método HTTP**: GET  
-**Path**: `/clusters/{name}/node-groups`
+### 3. ListNodegroups / DescribeNodegroup
 
-#### Parâmetros
+`ListNodegroups` retorna os grupos de nós gerenciados de um cluster. `DescribeNodegroup` retorna os detalhes de um grupo de nós, incluindo tipo de instância, configuração de auto-scaling e versão do AMI.
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+#### Parâmetros de `DescribeNodegroup`
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `name` | String (path) | Sim | Nome do cluster. |
-| `maxResults` | Integer (query) | Não | Número máximo de resultados. |
-| `nextToken` | String (query) | Não | Token para paginação. |
+| `clusterName` | String | **Sim** | O nome do cluster pai do grupo de nós. |
+| `nodegroupName` | String | **Sim** | O nome do grupo de nós a ser descrito. |
 
-### 4.4 DescribeNodegroup
+#### Exemplo de Requisição
 
-Retorna detalhes de um node group (tipo de instância, scaling config, etc.).
-
-**Método HTTP**: GET  
-**Path**: `/clusters/{name}/node-groups/{nodegroupName}`
-
-#### Parâmetros de Path
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `name` | String | Sim | Nome do cluster. |
-| `nodegroupName` | String | Sim | Nome do node group. |
+```
+GET /clusters/MyCluster/nodegroups/MyNodegroup
+```

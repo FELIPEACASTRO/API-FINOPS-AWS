@@ -1,119 +1,134 @@
-# Guia Detalhado: ElastiCache, DynamoDB, Redshift, ELB e Auto Scaling APIs (FinOps)
+# Guia Devastadoramente Detalhado: Inventário de Outros Serviços Relevantes
+
+## Visão Geral
+
+Este guia finaliza a seção de inventário cobrindo serviços de caching, banco de dados NoSQL, data warehousing e balanceamento de carga. Embora possam não ser tão onipresentes quanto o EC2, esses serviços podem representar custos significativos e otimizações importantes.
 
 ---
 
-## 1. Amazon ElastiCache API
+## Amazon ElastiCache
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://elasticache.{region}.amazonaws.com/` |
-| **Protocolo** | Query API (form-urlencoded) |
+| **Endpoint** | `https://elasticache.{region}.amazonaws.com` |
+| **Protocolo** | Query (GET/POST) |
 | **Service Name (IAM)** | `elasticache` |
-| **Versão da API** | `2015-02-02` |
 
-### 1.1 DescribeCacheClusters
+### 1. DescribeCacheClusters
 
-Lista todos os clusters ElastiCache com informações de nós.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `CacheClusterId` | String | Não | ID de um cluster específico. |
-| `ShowCacheNodeInfo` | Boolean | Não | Se `true`, retorna informações detalhadas de cada nó. |
-| `ShowCacheClustersNotInReplicationGroups` | Boolean | Não | Se `true`, mostra apenas clusters standalone. |
-| `MaxRecords` | Integer | Não | Número máximo de resultados (20-100). |
-| `Marker` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
-
-```
-Action=DescribeCacheClusters
-&Version=2015-02-02
-&ShowCacheNodeInfo=true
-```
-
-### 1.2 DescribeReservedCacheNodes
-
-Lista as Reserved Cache Nodes ativas.
+Retorna informações sobre clusters de cache provisionados (Redis ou Memcached).
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `ReservedCacheNodeId` | String | Não | ID de uma reserva específica. |
-| `CacheNodeType` | String | Não | Filtro por tipo de nó. |
-| `Duration` | String | Não | Duração em segundos. |
-| `ProductDescription` | String | Não | Descrição do produto. |
-| `OfferingType` | String | Não | Tipo de oferta. |
+| `CacheClusterId` | String | Não | O ID de um cluster de cache específico. Se omitido, retorna todos os clusters. |
 | `MaxRecords` | Integer | Não | Número máximo de resultados. |
-| `Marker` | String | Não | Token para paginação. |
+| `Marker` | String | Não | Token de paginação. |
+| `ShowCacheNodeInfo` | Boolean | Não | Se `true`, inclui informações detalhadas sobre cada nó no cluster. Útil para verificar o estado individual dos nós. |
 
-#### Exemplo de Requisição
+#### Exemplo de Requisição (Listar todos os clusters)
 
-```
-Action=DescribeReservedCacheNodes
-&Version=2015-02-02
+```json
+{}
 ```
 
 ---
 
-## 2. Amazon DynamoDB API
+## Amazon DynamoDB
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://dynamodb.{region}.amazonaws.com/` |
+| **Endpoint** | `https://dynamodb.{region}.amazonaws.com` |
 | **Protocolo** | JSON-RPC (POST) |
-| **Content-Type** | `application/x-amz-json-1.0` |
-| **X-Amz-Target Prefix** | `DynamoDB_20120810` |
 | **Service Name (IAM)** | `dynamodb` |
 
-### 2.1 ListTables
+### 1. ListTables
 
-Lista todas as tabelas DynamoDB.
+Retorna uma lista dos nomes de todas as suas tabelas DynamoDB.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `ExclusiveStartTableName` | String | Não | Nome da tabela a partir da qual continuar a listagem. |
-| `Limit` | Integer | Não | Número máximo de resultados (1-100). |
+| `ExclusiveStartTableName` | String | Não | O nome da tabela a partir da qual continuar uma lista paginada. Usado para paginação. |
+| `Limit` | Integer | Não | Número máximo de nomes de tabela a serem retornados por página. |
+
+#### Exemplo de Requisição
+
+```json
+{}
+```
+
+### 2. DescribeTable
+
+Retorna informações detalhadas sobre uma tabela, incluindo seu status, esquema de chave, índices e, mais importante para FinOps, o `BillingModeSummary` (On-Demand ou Provisioned) e as `ProvisionedThroughput` (RCUs/WCUs provisionadas).
+
+#### Parâmetros de Entrada
+
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- |
+| `TableName` | String | **Sim** | O nome da tabela a ser descrita. |
 
 #### Exemplo de Requisição
 
 ```json
 {
-  "Limit": 100
+  "TableName": "MyDataTable"
 }
 ```
 
-### 2.2 DescribeTable
+---
 
-Retorna detalhes de uma tabela (capacidade, tamanho, modo de billing).
+## Amazon Redshift
+
+| Atributo | Valor |
+| :--- | :--- |
+| **Endpoint** | `https://redshift.{region}.amazonaws.com` |
+| **Protocolo** | Query (GET/POST) |
+| **Service Name (IAM)** | `redshift` |
+
+### 1. DescribeClusters
+
+Retorna propriedades de clusters provisionados do Amazon Redshift.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `TableName` | String | Sim | Nome da tabela. |
+| `ClusterIdentifier` | String | Não | O identificador de um cluster específico. |
+| `MaxRecords` | Integer | Não | Número máximo de resultados. |
+| `Marker` | String | Não | Token de paginação. |
+| `TagKeys` / `TagValues` | Array de Strings | Não | Filtra clusters com base em chaves e/ou valores de tags. Essencial para inventário por projeto. |
 
-#### Exemplo de Requisição
+#### Exemplo de Requisição (Listar todos os clusters)
 
 ```json
-{
-  "TableName": "my-table"
-}
+{}
 ```
 
-### 2.3 DescribeReservedCapacity
+---
 
-Lista a capacidade reservada ativa do DynamoDB.
+## Elastic Load Balancing (ELB)
+
+| Atributo | Valor |
+| :--- | :--- |
+| **Endpoint** | `https://elasticloadbalancing.{region}.amazonaws.com` |
+| **Protocolo** | Query (GET/POST) |
+| **Service Name (IAM)** | `elasticloadbalancing` |
+
+### 1. DescribeLoadBalancers
+
+Retorna informações sobre seus Application Load Balancers (ALB), Network Load Balancers (NLB) e Gateway Load Balancers (GWLB). A API para Classic Load Balancers é separada e mais antiga.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `ReservedCapacityId` | String | Não | ID de uma reserva específica. |
+| `LoadBalancerArns` | Array de Strings | Não | ARNs de load balancers específicos. |
+| `Names` | Array de Strings | Não | Nomes de load balancers específicos. |
+| `Marker` | String | Não | Token de paginação. |
+| `PageSize` | Integer | Não | Tamanho da página. |
 
 #### Exemplo de Requisição
 
@@ -123,157 +138,29 @@ Lista a capacidade reservada ativa do DynamoDB.
 
 ---
 
-## 3. Amazon Redshift API
+## EC2 Auto Scaling
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://redshift.{region}.amazonaws.com/` |
-| **Protocolo** | Query API (form-urlencoded) |
-| **Service Name (IAM)** | `redshift` |
-| **Versão da API** | `2012-12-01` |
-
-### 3.1 DescribeClusters
-
-Lista todos os clusters Redshift.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `ClusterIdentifier` | String | Não | Identificador de um cluster específico. |
-| `MaxRecords` | Integer | Não | Número máximo de resultados (20-100). |
-| `Marker` | String | Não | Token para paginação. |
-| `TagKeys` | Array | Não | Filtro por chaves de tag. |
-| `TagValues` | Array | Não | Filtro por valores de tag. |
-
-#### Exemplo de Requisição
-
-```
-Action=DescribeClusters
-&Version=2012-12-01
-```
-
-### 3.2 DescribeReservedNodes
-
-Lista as Reserved Nodes ativas do Redshift.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `ReservedNodeId` | String | Não | ID de uma reserva específica. |
-| `MaxRecords` | Integer | Não | Número máximo de resultados. |
-| `Marker` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
-
-```
-Action=DescribeReservedNodes
-&Version=2012-12-01
-```
-
----
-
-## 4. Elastic Load Balancing API (v2)
-
-| Atributo | Valor |
-| :--- | :--- |
-| **Endpoint** | `https://elasticloadbalancing.{region}.amazonaws.com/` |
-| **Protocolo** | Query API (form-urlencoded) |
-| **Service Name (IAM)** | `elasticloadbalancing` |
-| **Versão da API** | `2015-12-01` |
-
-### 4.1 DescribeLoadBalancers
-
-Lista todos os ALBs, NLBs e GLBs.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `LoadBalancerArns` | Array | Não | ARNs de LBs específicos. |
-| `Names` | Array | Não | Nomes de LBs específicos. |
-| `Marker` | String | Não | Token para paginação. |
-| `PageSize` | Integer | Não | Número máximo de resultados (1-400). |
-
-#### Exemplo de Requisição
-
-```
-Action=DescribeLoadBalancers
-&Version=2015-12-01
-```
-
-### 4.2 DescribeTargetGroups
-
-Lista todos os Target Groups.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `LoadBalancerArn` | String | Não | Filtro por LB. |
-| `TargetGroupArns` | Array | Não | ARNs de TGs específicos. |
-| `Names` | Array | Não | Nomes de TGs específicos. |
-| `Marker` | String | Não | Token para paginação. |
-| `PageSize` | Integer | Não | Número máximo de resultados. |
-
-#### Exemplo de Requisição
-
-```
-Action=DescribeTargetGroups
-&Version=2015-12-01
-```
-
----
-
-## 5. Auto Scaling API
-
-| Atributo | Valor |
-| :--- | :--- |
-| **Endpoint** | `https://autoscaling.{region}.amazonaws.com/` |
-| **Protocolo** | Query API (form-urlencoded) |
+| **Endpoint** | `https://autoscaling.{region}.amazonaws.com` |
+| **Protocolo** | Query (GET/POST) |
 | **Service Name (IAM)** | `autoscaling` |
-| **Versão da API** | `2011-01-01` |
 
-### 5.1 DescribeAutoScalingGroups
+### 1. DescribeAutoScalingGroups
 
-Lista todos os grupos de Auto Scaling (min, max, desired).
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `AutoScalingGroupNames` | Array | Não | Nomes de ASGs específicos. |
-| `Filters` | Array | Não | Filtros por tag. |
-| `MaxRecords` | Integer | Não | Número máximo de resultados (1-100). |
-| `NextToken` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
-
-```
-Action=DescribeAutoScalingGroups
-&Version=2011-01-01
-&MaxRecords=100
-```
-
-### 5.2 DescribePolicies
-
-Lista as políticas de escalabilidade.
+Retorna informações sobre seus grupos de Auto Scaling, incluindo o número desejado, mínimo e máximo de instâncias, e os tipos de instância usados. Crucial para entender a elasticidade e o custo potencial de seus workloads.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AutoScalingGroupName` | String | Não | Nome do ASG. |
-| `PolicyNames` | Array | Não | Nomes de políticas específicas. |
-| `PolicyTypes` | Array | Não | Tipos de política. |
+| `AutoScalingGroupNames` | Array de Strings | Não | Nomes de grupos de Auto Scaling específicos. |
+| `Filters` | Array de Objetos | Não | Filtra por tag. Ex: `Name: "tag-key", Values: ["MyTagKey"]`. |
 | `MaxRecords` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
+| `NextToken` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+#### Exemplo de Requisição (Listar todos os grupos)
 
-```
-Action=DescribePolicies
-&Version=2011-01-01
-&AutoScalingGroupName=my-asg
+```json
+{}
 ```

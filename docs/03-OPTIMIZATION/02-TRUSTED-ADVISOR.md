@@ -1,31 +1,32 @@
-# Guia Detalhado: AWS Trusted Advisor APIs
+# Guia Devastadoramente Detalhado: AWS Trusted Advisor API
 
 ## Visão Geral
 
-O Trusted Advisor fornece recomendações em cinco categorias: otimização de custos, performance, segurança, tolerância a falhas e limites de serviço. Existem duas APIs: a API Legacy (via Support API) e a nova API REST.
-
----
-
-## API 1: Trusted Advisor via Support API (Legacy)
+O AWS Trusted Advisor inspeciona seu ambiente AWS e faz recomendações para seguir as melhores práticas em cinco categorias: otimização de custos, performance, segurança, tolerância a falhas e limites de serviço. A API permite que você acesse os resultados dessas verificações de forma programática. **Importante**: O acesso programático ao Trusted Advisor requer um plano de suporte **Business, Enterprise On-Ramp ou Enterprise**.
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://support.us-east-1.amazonaws.com/` |
-| **Protocolo** | JSON-RPC (POST) |
-| **Content-Type** | `application/x-amz-json-1.1` |
-| **X-Amz-Target Prefix** | `AWSSupport_20130415` |
-| **Service Name (IAM)** | `support` |
-| **Requisito** | Plano de suporte Business ou Enterprise |
+| **Endpoint** | `https://support.{region}.amazonaws.com` (API Legada) / `https://trustedadvisor.{region}.amazonaws.com` (API v2) |
+| **Protocolo** | JSON-RPC (POST) / REST (JSON) |
+| **Content-Type** | `application/x-amz-json-1.1` / `application/json` |
+| **X-Amz-Target Prefix** | `AWSSupport_20130415` (API Legada) |
+| **Service Name (IAM)** | `support` / `trustedadvisor` |
+
+---
+
+## API Legada (via AWS Support)
+
+Esta é a API mais antiga, mas ainda funcional.
 
 ### 1. DescribeTrustedAdvisorChecks
 
-Lista todas as verificações disponíveis do Trusted Advisor.
+Descreve as verificações disponíveis no Trusted Advisor, retornando seus nomes, IDs, descrições e categorias.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `language` | String | Sim | Idioma dos resultados: `en` (inglês), `ja` (japonês), `fr` (francês), `zh` (chinês). |
+| `language` | String | **Sim** | O idioma para a descrição das verificações. Use `"en"` para inglês, pois é o mais completo. Outros idiomas como `"ja"` (japonês) e `"fr"` (francês) são suportados, mas o português não é garantido para todas as descrições na API. |
 
 #### Exemplo de Requisição
 
@@ -34,191 +35,117 @@ Lista todas as verificações disponíveis do Trusted Advisor.
   "language": "en"
 }
 ```
-
----
 
 ### 2. DescribeTrustedAdvisorCheckResult
 
-Retorna o resultado detalhado de uma verificação específica, incluindo os recursos afetados.
+Retorna o resultado detalhado de uma verificação específica, incluindo a lista de recursos sinalizados e metadados sobre cada recurso.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `checkId` | String | Sim | O ID da verificação. |
-| `language` | String | Não | Idioma dos resultados. |
+| `checkId` | String | **Sim** | O ID da verificação que você deseja executar. Este ID é obtido da resposta da chamada `DescribeTrustedAdvisorChecks`. Cada verificação (ex: "Low Utilization Amazon EC2 Instances") tem um ID único. |
+| `language` | String | Não | O idioma para o resultado. Use `"en"` para consistência. |
 
-#### Exemplo de Requisição
+#### Exemplo de Requisição (Verificação de Instâncias EC2 Ociosas)
 
 ```json
 {
-  "checkId": "Qch7DwouX1",
+  "checkId": "L4_T1_OP_EC2_Idle_Instances",
   "language": "en"
 }
 ```
 
----
+### 3. RefreshTrustedAdvisorCheck
 
-### 3. DescribeTrustedAdvisorCheckSummaries
-
-Retorna resumos de uma ou mais verificações.
+Solicita uma atualização para uma verificação específica do Trusted Advisor. As verificações não são em tempo real e os resultados podem ficar em cache por algum tempo. Use esta chamada para forçar uma nova análise.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `checkIds` | Array | Sim | Lista de IDs de verificações. |
+| `checkId` | String | **Sim** | O ID da verificação que você deseja atualizar. |
 
 #### Exemplo de Requisição
 
 ```json
 {
-  "checkIds": ["Qch7DwouX1", "DAvU99Dc4C", "Z4AUBRNSmz"]
+  "checkId": "L4_T1_OP_EC2_Idle_Instances"
 }
 ```
 
 ---
 
-### 4. RefreshTrustedAdvisorCheck
+## API v2 (Trusted Advisor)
 
-Solicita a atualização de uma verificação.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `checkId` | String | Sim | O ID da verificação a ser atualizada. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "checkId": "Qch7DwouX1"
-}
-```
-
----
-
-## API 2: Trusted Advisor REST API (Nova)
-
-| Atributo | Valor |
-| :--- | :--- |
-| **Endpoint** | `https://trustedadvisor.{region}.amazonaws.com` |
-| **Protocolo** | REST (JSON) |
-| **Service Name (IAM)** | `trustedadvisor` |
+Esta é a API mais moderna e recomendada, oferecendo mais filtros e uma estrutura RESTful.
 
 ### 1. ListChecks
 
-Lista todas as verificações disponíveis.
+Lista as verificações disponíveis no Trusted Advisor, com mais opções de filtro.
 
-**Método HTTP**: GET  
+**Método**: `GET`
 **Path**: `/v2/checks`
 
-#### Parâmetros de Query String
+#### Parâmetros de Query
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `maxResults` | Integer | Não | Número máximo de resultados. |
+| `pillar` | String | Não | Filtra por pilar: `cost_optimizing`, `performance`, `security`, `fault_tolerance`, `service_limits`. Essencial para focar nas verificações de FinOps (`cost_optimizing`). |
+| `language` | String | Não | Suporta mais idiomas, incluindo `pt_BR` para português do Brasil. |
+| `awsService` | String | Não | Filtra as verificações por um serviço AWS específico (ex: `Amazon EC2`). |
+| `maxResults` | Integer | Não | Número máximo de resultados por página. |
 | `nextToken` | String | Não | Token para paginação. |
-| `pillar` | String | Não | Filtro por pilar: `cost_optimizing`, `performance`, `security`, `fault_tolerance`, `service_limits`, `operational_excellence`. |
-| `language` | String | Não | Idioma: `en`, `ja`, `zh`, `fr`, `de`, `ko`, `zh_TW`, `it`, `pt_BR`, `es`, `id`. |
-| `awsService` | String | Não | Filtro por serviço AWS. |
-| `source` | String | Não | Filtro por fonte: `aws_config`, `compute_optimizer`, `cost_explorer`, `lse`, `manual`, `pse`, `rds`, `resilience`, `resilience_hub`, `security_hub`, `stir`, `ta_check`. |
 
-#### Exemplo de Requisição
+#### Exemplo de Requisição (Verificações de Otimização de Custo em Português)
 
 ```
-GET /v2/checks?pillar=cost_optimizing&maxResults=100
+GET /v2/checks?pillar=cost_optimizing&language=pt_BR
 ```
-
----
 
 ### 2. ListRecommendations
 
-Lista todas as recomendações ativas.
+Lista as recomendações (ou seja, os recursos que foram sinalizados em alguma verificação).
 
-**Método HTTP**: GET  
+**Método**: `GET`
 **Path**: `/v2/recommendations`
 
-#### Parâmetros de Query String
+#### Parâmetros de Query
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
+| `pillar` | String | Não | Filtra por pilar. `cost_optimizing` é o mais relevante para FinOps. |
+| `status` | String | Não | Filtra pelo status do recurso na verificação: `ok` (verde), `warning` (amarelo), `error` (vermelho).<br>**Uso**: Filtrar por `warning` e `error` para encontrar problemas ativos. |
+| `checkIdentifier` | String | Não | O ID de uma verificação específica para obter apenas as suas recomendações. |
 | `maxResults` | Integer | Não | Número máximo de resultados. |
 | `nextToken` | String | Não | Token para paginação. |
-| `pillar` | String | Não | Filtro por pilar. |
-| `status` | String | Não | `ok`, `warning`, `error`. |
-| `awsService` | String | Não | Filtro por serviço AWS. |
-| `source` | String | Não | Filtro por fonte. |
-| `type` | String | Não | `standard` ou `priority`. |
-| `checkIdentifier` | String | Não | Filtro por ID de verificação. |
-| `afterLastUpdatedAt` | Timestamp | Não | Filtra recomendações atualizadas após esta data. |
-| `beforeLastUpdatedAt` | Timestamp | Não | Filtra recomendações atualizadas antes desta data. |
 
-#### Exemplo de Requisição
+#### Exemplo de Requisição (Recursos com status de 'erro' no pilar de otimização de custo)
 
 ```
-GET /v2/recommendations?pillar=cost_optimizing&status=warning
+GET /v2/recommendations?pillar=cost_optimizing&status=error
 ```
 
----
+### 3. UpdateRecommendationLifecycle
 
-### 3. GetRecommendation
+Atualiza o ciclo de vida de uma recomendação, permitindo que você marque um item como "em andamento" ou "resolvido". Isso ajuda a gerenciar o fluxo de trabalho de otimização.
 
-Retorna detalhes de uma recomendação específica.
-
-**Método HTTP**: GET  
-**Path**: `/v2/recommendations/{recommendationIdentifier}`
-
-#### Parâmetros de Path
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `recommendationIdentifier` | String | Sim | ARN da recomendação. |
-
----
-
-### 4. ListRecommendationResources
-
-Lista os recursos afetados por uma recomendação.
-
-**Método HTTP**: GET  
-**Path**: `/v2/recommendations/{recommendationIdentifier}/resources`
-
-#### Parâmetros
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `recommendationIdentifier` | String (path) | Sim | ARN da recomendação. |
-| `maxResults` | Integer (query) | Não | Número máximo de resultados. |
-| `nextToken` | String (query) | Não | Token para paginação. |
-| `status` | String (query) | Não | `ok`, `warning`, `error`. |
-| `regionCode` | String (query) | Não | Filtro por região. |
-| `exclusionStatus` | String (query) | Não | `excluded` ou `included`. |
-
----
-
-### 5. UpdateRecommendationLifecycle
-
-Atualiza o ciclo de vida de uma recomendação (ex: marcar como resolvida).
-
-**Método HTTP**: PUT  
+**Método**: `PUT`
 **Path**: `/v2/recommendations/{recommendationIdentifier}/lifecycle`
 
 #### Parâmetros
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `recommendationIdentifier` | String (path) | Sim | ARN da recomendação. |
-| `lifecycleStage` | String (body) | Sim | `pending_response`, `in_progress`, `dismissed`, `resolved`. |
-| `updateReason` | String (body) | Não | Motivo da atualização. |
-| `updateReasonCode` | String (body) | Não | Código do motivo: `non_critical_account`, `temporary_account`, `valid_business_case`, `other_methods_available`, `low_priority`, `not_applicable`, `other`. |
+| Parâmetro | Local | Tipo | Obrigatório | Descrição Detalhada e Didática |
+| :--- | :--- | :--- | :--- | :--- |
+| `recommendationIdentifier` | Path | String | **Sim** | O ID da recomendação que você está atualizando. |
+| `lifecycleStage` | Body | String | **Sim** | O novo estágio do ciclo de vida.<br>**Valores**: `in_progress` (em andamento), `dismissed` (ignorado), `resolved` (resolvido). |
+| `updateReason` | Body | String | Não | Um texto livre explicando o motivo da atualização (ex: "Instância terminada pelo time de dev"). |
 
-#### Exemplo de Requisição
+#### Exemplo de Requisição (Marcar uma recomendação como resolvida)
 
 ```json
 {
   "lifecycleStage": "resolved",
-  "updateReason": "Instância foi terminada"
+  "updateReason": "A instância ociosa foi terminada em 22/02/2026."
 }
 ```

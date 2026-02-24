@@ -1,181 +1,67 @@
-# Guia Detalhado: Service Quotas, License Manager, Well-Architected e SSM APIs (FinOps)
+# Guia Devastadoramente Detalhado: Outras APIs de Governança
+
+## Visão Geral
+
+Este guia cobre um conjunto de serviços de governança que, embora menos focados em custo direto, são cruciais para a operação eficiente e bem arquitetada na nuvem, o que indiretamente impacta os custos.
 
 ---
 
-## 1. Service Quotas API
+## Service Quotas
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://servicequotas.{region}.amazonaws.com/` |
+| **Endpoint** | `https://servicequotas.{region}.amazonaws.com` |
 | **Protocolo** | JSON-RPC (POST) |
-| **Content-Type** | `application/x-amz-json-1.1` |
-| **X-Amz-Target Prefix** | `ServiceQuotasV20190624` |
-| **Service Name (IAM)** | `service-quotas` |
+| **Service Name (IAM)** | `servicequotas` |
 
-### 1.1 ListServices
+### 1. ListServices
 
-Lista os serviços AWS que possuem cotas gerenciáveis.
+Lista os serviços para os quais você pode visualizar as cotas (limites).
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `MaxResults` | Integer | Não | Número máximo de resultados (1-100). |
-| `NextToken` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
-
-```json
-{}
-```
-
-### 1.2 ListServiceQuotas
-
-Lista todas as cotas de um serviço específico.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `ServiceCode` | String | Sim | Código do serviço (ex: `ec2`, `vpc`, `lambda`). |
 | `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
-| `QuotaCode` | String | Não | Código de uma cota específica. |
-| `QuotaAppliedAtLevel` | String | Não | `ACCOUNT`, `RESOURCE`, `ALL`. |
+| `NextToken` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+### 2. ListServiceQuotas
 
-```json
-{
-  "ServiceCode": "ec2"
-}
-```
-
-### 1.3 GetServiceQuota
-
-Retorna o valor de uma cota específica.
+Lista as cotas para um serviço específico.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `ServiceCode` | String | Sim | Código do serviço. |
-| `QuotaCode` | String | Sim | Código da cota. |
-| `ContextId` | String | Não | ID de contexto para cotas de nível de recurso. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "ServiceCode": "ec2",
-  "QuotaCode": "L-1216C47A"
-}
-```
-
-### 1.4 RequestServiceQuotaIncrease
-
-Solicita um aumento de cota.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `ServiceCode` | String | Sim | Código do serviço. |
-| `QuotaCode` | String | Sim | Código da cota. |
-| `DesiredValue` | Double | Sim | Valor desejado para a cota. |
-| `ContextId` | String | Não | ID de contexto. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "ServiceCode": "ec2",
-  "QuotaCode": "L-1216C47A",
-  "DesiredValue": 500
-}
-```
+| `ServiceCode` | String | **Sim** | O código do serviço (ex: `ec2`, `vpc`). Obtido de `ListServices`. |
+| `MaxResults` | Integer | Não | Número máximo de resultados. |
+| `NextToken` | String | Não | Token de paginação. |
 
 ---
 
-## 2. AWS License Manager API
+## AWS License Manager
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://license-manager.{region}.amazonaws.com/` |
+| **Endpoint** | `https://license-manager.{region}.amazonaws.com` |
 | **Protocolo** | JSON-RPC (POST) |
-| **Content-Type** | `application/x-amz-json-1.1` |
-| **X-Amz-Target Prefix** | `AWSLicenseManager` |
 | **Service Name (IAM)** | `license-manager` |
 
-### 2.1 ListLicenseConfigurations
+### 1. ListLicenseSpecificationsForResource
 
-Lista todas as configurações de licença.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `LicenseConfigurationArns` | Array | Não | ARNs de configurações específicas. |
-| `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
-| `Filters` | Array | Não | Filtros com `Name` e `Values`. |
-
-#### Exemplo de Requisição
-
-```json
-{}
-```
-
-### 2.2 ListUsageForLicenseConfiguration
-
-Lista o uso de uma configuração de licença.
+Lista as especificações de licença associadas a um recurso (como uma AMI ou instância).
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `LicenseConfigurationArn` | String | Sim | ARN da configuração de licença. |
+| `ResourceArn` | String | **Sim** | O ARN do recurso. |
 | `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
-| `Filters` | Array | Não | Filtros. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "LicenseConfigurationArn": "arn:aws:license-manager:us-east-1:123456789012:license-configuration:lic-abc123"
-}
-```
-
-### 2.3 ListResourceInventory
-
-Lista o inventário de recursos que usam licenças gerenciadas.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
-| `Filters` | Array | Não | Filtros por `Name`, `Condition` e `Value`. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "Filters": [
-    {
-      "Name": "Platform",
-      "Condition": "EQUALS",
-      "Value": "Windows"
-    }
-  ]
-}
-```
+| `NextToken` | String | Não | Token de paginação. |
 
 ---
 
-## 3. AWS Well-Architected Tool API
+## AWS Well-Architected Tool
 
 | Atributo | Valor |
 | :--- | :--- |
@@ -183,114 +69,50 @@ Lista o inventário de recursos que usam licenças gerenciadas.
 | **Protocolo** | REST (JSON) |
 | **Service Name (IAM)** | `wellarchitected` |
 
-### 3.1 ListWorkloads
+### 1. ListWorkloads
 
-Lista todos os workloads registrados.
+Lista as cargas de trabalho (workloads) que foram definidas na ferramenta.
 
-**Método HTTP**: POST  
-**Path**: `/workloadsSummaries`
+#### Parâmetros de Entrada
 
-#### Parâmetros de Entrada (Body)
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `WorkloadNamePrefix` | String | Não | Filtro por prefixo de nome. |
-| `MaxResults` | Integer | Não | Número máximo de resultados (1-50). |
-| `NextToken` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "MaxResults": 50
-}
-```
-
-### 3.2 GetLensReview
-
-Retorna detalhes de uma revisão de lente para um workload.
-
-**Método HTTP**: GET  
-**Path**: `/workloads/{WorkloadId}/lensReviews/{LensAlias}`
-
-#### Parâmetros de Path
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `WorkloadId` | String | Sim | ID do workload. |
-| `LensAlias` | String | Sim | Alias da lente (ex: `wellarchitected`, `serverless`). |
-
-#### Parâmetros de Query String
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `MilestoneNumber` | Integer | Não | Número do milestone. |
+| `WorkloadNamePrefix` | String | Não | Filtra workloads por um prefixo de nome. |
+| `MaxResults` | Integer | Não | Número máximo de resultados. |
+| `NextToken` | String | Não | Token de paginação. |
 
 ---
 
-## 4. AWS Systems Manager API
+## AWS Systems Manager (SSM)
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://ssm.{region}.amazonaws.com/` |
+| **Endpoint** | `https://ssm.{region}.amazonaws.com` |
 | **Protocolo** | JSON-RPC (POST) |
-| **Content-Type** | `application/x-amz-json-1.1` |
-| **X-Amz-Target Prefix** | `AmazonSSM` |
 | **Service Name (IAM)** | `ssm` |
 
-### 4.1 DescribeInstanceInformation
+### 1. DescribeInstanceInformation
 
-Lista informações sobre instâncias gerenciadas pelo SSM.
+Retorna informações sobre suas instâncias gerenciadas pelo SSM, incluindo status do agente, plataforma e versão. Útil para garantir que o agente de gerenciamento esteja funcionando, o que é um pré-requisito para muitas automações de otimização.
 
 #### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `InstanceInformationFilterList` | Array | Não | Filtros por `key` e `valueSet`. Keys: `InstanceIds`, `AgentVersion`, `PingStatus`, `PlatformTypes`, `ActivationIds`, `IamRole`, `ResourceType`, `AssociationStatus`. |
-| `Filters` | Array | Não | Filtros alternativos com `Key`, `Values` e `Type`. |
-| `MaxResults` | Integer | Não | Número máximo de resultados (1-50). |
-| `NextToken` | String | Não | Token para paginação. |
+| `Filters` | Array de Objetos | Não | Filtra por `PingStatus` (`Online`, `Offline`), `PlatformTypes`, `ActivationIds`, etc. |
+| `InstanceInformationFilterList` | Array de Objetos | Não | Filtros mais antigos e menos flexíveis. Prefira `Filters`. |
+| `MaxResults` | Integer | Não | Número máximo de resultados. |
+| `NextToken` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+#### Exemplo de Requisição (Listar instâncias offline)
 
 ```json
 {
-  "MaxResults": 50,
   "Filters": [
     {
       "Key": "PingStatus",
-      "Values": ["Online"],
-      "Type": "Equal"
+      "Values": ["Offline"]
     }
   ]
-}
-```
-
-### 4.2 GetInventory
-
-Retorna dados de inventário coletados das instâncias (software instalado, configurações de rede, etc.).
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `Filters` | Array | Não | Filtros por `Key`, `Values` e `Type`. |
-| `Aggregators` | Array | Não | Agregadores para agrupar resultados. |
-| `ResultAttributes` | Array | Não | Atributos adicionais a retornar. |
-| `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "Filters": [
-    {
-      "Key": "TypeName",
-      "Values": ["AWS:Application"],
-      "Type": "Equal"
-    }
-  ],
-  "MaxResults": 50
 }
 ```

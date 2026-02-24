@@ -1,12 +1,12 @@
-# Guia Detalhado: AWS Organizations API
+# Guia Devastadoramente Detalhado: AWS Organizations API
 
 ## Visão Geral
 
-O AWS Organizations é fundamental para ambientes multi-conta, permitindo gerenciar contas de forma centralizada e entender a estrutura organizacional para alocação de custos.
+O AWS Organizations é o serviço central para gerenciar múltiplas contas AWS. Para FinOps, ele é a fonte da verdade para entender a estrutura hierárquica da empresa (quais contas pertencem a qual departamento ou unidade de negócio) e para aplicar políticas de governança. A API permite que você liste todas as contas, navegue pela estrutura de Unidades Organizacionais (OUs) e consulte tags, que são essenciais para a alocação de custos.
 
 | Atributo | Valor |
 | :--- | :--- |
-| **Endpoint** | `https://organizations.us-east-1.amazonaws.com/` |
+| **Endpoint** | `https://organizations.us-east-1.amazonaws.com` (Global) |
 | **Protocolo** | JSON-RPC (POST) |
 | **Content-Type** | `application/x-amz-json-1.1` |
 | **X-Amz-Target Prefix** | `AWSOrganizationsV20161128` |
@@ -14,20 +14,18 @@ O AWS Organizations é fundamental para ambientes multi-conta, permitindo gerenc
 
 ---
 
-## Ações da API
+## 1. ListAccounts
 
-### 1. ListAccounts
+Retorna uma lista de todas as contas que fazem parte da organização.
 
-Lista todas as contas da organização.
+### Parâmetros de Entrada
 
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `MaxResults` | Integer | Não | Número máximo de resultados por página. |
-| `NextToken` | String | Não | Token para paginação. |
+| `MaxResults` | Integer | Não | O número máximo de resultados a serem retornados em uma única chamada. Se o número de contas for maior, a resposta incluirá um `NextToken`. Útil para controlar o fluxo de dados. |
+| `NextToken` | String | Não | Um token fornecido em uma resposta anterior para obter a próxima página de resultados. Essencial para iterar por todas as contas em organizações grandes. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição
 
 ```json
 {
@@ -37,17 +35,17 @@ Lista todas as contas da organização.
 
 ---
 
-### 2. DescribeAccount
+## 2. DescribeAccount
 
-Retorna detalhes de uma conta específica.
+Recupera informações sobre uma conta específica, como nome, e-mail, status e data em que se juntou à organização.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `AccountId` | String | Sim | O ID da conta a ser descrita. |
+| `AccountId` | String | **Sim** | O identificador único (ID de 12 dígitos) da conta sobre a qual você deseja obter informações. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição
 
 ```json
 {
@@ -57,18 +55,18 @@ Retorna detalhes de uma conta específica.
 
 ---
 
-### 3. ListRoots
+## 3. ListRoots
 
-Lista as raízes (roots) da organização. Geralmente, há apenas uma.
+Lista as raízes (roots) de uma organização. Uma organização tem apenas uma raiz. Esta é a chamada inicial para começar a navegar na hierarquia da sua organização de cima para baixo.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
 | `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
+| `NextToken` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição
 
 ```json
 {}
@@ -76,19 +74,19 @@ Lista as raízes (roots) da organização. Geralmente, há apenas uma.
 
 ---
 
-### 4. ListOrganizationalUnitsForParent
+## 4. ListOrganizationalUnitsForParent
 
-Lista as Unidades Organizacionais (OUs) filhas de um parent (root ou outra OU).
+Lista as Unidades Organizacionais (OUs) que são filhas diretas de uma raiz ou de outra OU. Use esta chamada recursivamente para mapear toda a sua árvore de OUs.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `ParentId` | String | Sim | O ID do parent (root ou OU). |
+| `ParentId` | String | **Sim** | O ID do pai (uma raiz ou outra OU) cujas OUs filhas você deseja listar. Você obtém este ID da chamada `ListRoots` ou de uma chamada anterior a esta mesma ação. |
 | `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
+| `NextToken` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Listar OUs sob a raiz)
 
 ```json
 {
@@ -98,19 +96,19 @@ Lista as Unidades Organizacionais (OUs) filhas de um parent (root ou outra OU).
 
 ---
 
-### 5. ListAccountsForParent
+## 5. ListAccountsForParent
 
-Lista as contas diretamente dentro de um parent (root ou OU).
+Lista as contas que são membros diretos de uma raiz ou OU especificada.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `ParentId` | String | Sim | O ID do parent (root ou OU). |
+| `ParentId` | String | **Sim** | O ID do pai (raiz ou OU) cujas contas membro você deseja listar. |
 | `MaxResults` | Integer | Não | Número máximo de resultados. |
-| `NextToken` | String | Não | Token para paginação. |
+| `NextToken` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Listar contas na OU de "Produção")
 
 ```json
 {
@@ -120,52 +118,21 @@ Lista as contas diretamente dentro de um parent (root ou OU).
 
 ---
 
-### 6. ListTagsForResource
+## 6. ListTagsForResource
 
-Lista as tags de uma conta, OU ou root.
+Lista as tags anexadas a um recurso do Organizations (raiz, OU ou conta). Tags em OUs ou contas são uma prática recomendada de FinOps para alocação de custos.
 
-#### Parâmetros de Entrada
+### Parâmetros de Entrada
 
-| Parâmetro | Tipo | Obrigatório | Descrição |
+| Parâmetro | Tipo | Obrigatório | Descrição Detalhada e Didática |
 | :--- | :--- | :--- | :--- |
-| `ResourceId` | String | Sim | O ID do recurso (conta, OU, root). |
-| `NextToken` | String | Não | Token para paginação. |
+| `ResourceId` | String | **Sim** | O ID do recurso (ID da conta, ID da OU ou ID da raiz) cujas tags você deseja listar. |
+| `NextToken` | String | Não | Token de paginação. |
 
-#### Exemplo de Requisição
+### Exemplo de Requisição (Listar tags da conta 123456789012)
 
 ```json
 {
   "ResourceId": "123456789012"
-}
-```
-
----
-
-### 7. TagResource
-
-Adiciona uma ou mais tags a um recurso.
-
-#### Parâmetros de Entrada
-
-| Parâmetro | Tipo | Obrigatório | Descrição |
-| :--- | :--- | :--- | :--- |
-| `ResourceId` | String | Sim | O ID do recurso a ser tagueado. |
-| `Tags` | Array | Sim | Lista de objetos `Tag` com `Key` e `Value`. |
-
-#### Exemplo de Requisição
-
-```json
-{
-  "ResourceId": "123456789012",
-  "Tags": [
-    {
-      "Key": "CostCenter",
-      "Value": "CC-123"
-    },
-    {
-      "Key": "Environment",
-      "Value": "Production"
-    }
-  ]
 }
 ```
